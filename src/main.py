@@ -21,4 +21,5 @@ if (__name__ == '__main__'):
 		coef_speed=105,
 	)
 
+	print('Hello~')
 	building_1.estimate()
