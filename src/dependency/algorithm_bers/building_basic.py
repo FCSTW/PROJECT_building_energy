@@ -41,11 +41,12 @@ class Building():
 		"""
 
 		# Initialize the building object
-		# 0. Building information for estimation
+		# 1. Building information
+		# 1-a. Estimation information
 		self.estimation_system               = kwargs.get('estimation_system', None)
 		self.building_type                   = kwargs.get('building_type', None)
 
-		# 1. Building basic information
+		# 1-b. Basic information
 		self.building_coordinate             = kwargs.get('building_coordinate', None)
 		self.building_address_county         = kwargs.get('building_address_county', None)
 		self.building_address_town           = kwargs.get('building_address_town', None)
@@ -53,66 +54,65 @@ class Building():
 		self.building_es_exc                 = kwargs.get('building_es_exc', None)
 		self.building_n_stories_above_ground = kwargs.get('building_n_stories_above_ground', None)
 		self.building_n_stories_below_ground = kwargs.get('building_n_stories_below_ground', None)
+		self.building_floor_offset           = kwargs.get('building_floor_offset', 0)
+
+		# 1-c. Energy consumption sections
 		self.ec                              = kwargs.get('ec', None)
 		self.ec_other                        = kwargs.get('ec_other', None)
-		self.wc_rainfall	                 = kwargs.get('wc_rainfall', 0)
-
-		# 3. Building information for energy consumption sections
-		self.energysection                   = kwargs.get('energysection', None)
-		self.a_sportbathroom                 = kwargs.get('a_sportbathroom', None)
-		self.a_dining                        = kwargs.get('a_dining', None)
-		self.a_exhibition                    = kwargs.get('a_exhibition', None)
-		self.coef_power_cabinetrack	         = kwargs.get('coef_power_cabinetrack', None)
+		self.est_q_rw                        = kwargs.get('est_q_rw', 0)
 		self.ec_heating_comm                 = kwargs.get('ec_heating_comm', 'HE')
 		self.height_watertower	             = kwargs.get('height_watertower', None)
 
-		# 4. Elevator information
+		# 2. Building information
+		# Elevator information
 		self.elevator                        = kwargs.get('elevator', [])
 		self.n_elevator                      = len(self.elevator)
 
-		# 5. Escalator information
+		# Escalator information
 		self.escalator                       = kwargs.get('escalator', [])
 		self.n_escalator                     = len(self.escalator)
 
-		# 6. Hotel information
+		# Hotel information
 		self.hotel                           = kwargs.get('hotel', [])
 		self.n_hotel                         = len(self.hotel)
 
-		# 7. Hospital information
+		# Hospital information
 		self.hospital                        = kwargs.get('hospital', [])
 		self.n_hospital                      = len(self.hospital)
 
-		# 8. Sport bathroom information
+		# Sport bathroom information
 		self.sportbathroom                   = kwargs.get('sportbathroom', [])
 		self.n_sportbathroom                 = len(self.sportbathroom)
 
-		# 9. Swimming pool information
+		# Swimming pool information
 		self.swimmingpool                    = kwargs.get('swimmingpool', [])
 		self.n_swimmingpool                  = len(self.swimmingpool)
 
-		# 10. Spa information
+		# Spa information
 		self.spa                             = kwargs.get('spa', [])
 		self.n_spa                           = len(self.spa)
 
-		# 11. Dining area information
+		# Dining area information
 		self.diningarea                      = kwargs.get('diningarea', [])
 		self.n_diningarea                    = len(self.diningarea)
 
-		# 12. Exhibition area information
+		# Exhibition area information
 		self.exhibitionarea                  = kwargs.get('exhibitionarea', [])
 		self.n_exhibitionarea                = len(self.exhibitionarea)
 
-		# 13. Performance area information
+		# Performance area information
 		self.performancearea                 = kwargs.get('performancearea', [])
 		self.n_performancearea               = len(self.performancearea)
 
-		# Other information
-		self.floor_offset                    = kwargs.get('floor_offset', 0)
+		# Data center information
+		self.datacenter                      = kwargs.get('datacenter', [])
+		self.n_datacenter                    = len(self.datacenter)
 
 		# =========================================================================================
 		# Error handling
 		# Building information for estimation is not defined
-		if (self.estimation_system is None) or (self.building_type is None): raise ValueError('Building information for estimation is not defined.')
+		if (self.estimation_system is None): raise ValueError('Estimation system is not defined.')
+		if (self.building_type is None): raise ValueError('Building type is not defined.')
 
 		# Building location is not defined
 		if (self.building_coordinate is None) and ((self.building_address_county is None) and (self.building_address_town is None)): raise ValueError('Building location is not defined.')
@@ -127,7 +127,7 @@ class Building():
 		# =========================================================================================
 
 		# Basic information
-		self.building_n_stories_total = self.building_n_stories_above_ground + self.building_n_stories_below_ground + self.floor_offset
+		self.building_n_stories_total = self.building_n_stories_above_ground + self.building_n_stories_below_ground + self.building_floor_offset
 
 		# =========================================================================================
 
@@ -568,6 +568,30 @@ class Building():
 
 		return
 	
+	def create_datacenter(self, **kwargs):
+
+		"""
+		This method is used to create a datacenter object and append it to the building object.
+		===========================================================================================
+
+		Arguments:
+
+			None
+
+		Output:
+
+			None
+		"""
+		
+		# Remove building_type in kwargs avoiding repetition
+		if ('building_type' in kwargs): kwargs.pop('building_type')
+
+		new_datacenter = building_facility.DataCenter(building_type=self.building_type, **kwargs)
+		self.datacenter.append(new_datacenter)
+		self.n_datacenter = len(self.datacenter)
+
+		return
+	
 	def _calc_ec_total_elevator(self):
 
 		"""
@@ -591,7 +615,7 @@ class Building():
 		
 		else:
 			
-			ec_total_elevator = np.nansum([i.coef_usage_r * i.coef_facility_ec * i.coef_eff * i.coef_usage_h for i in self.elevator])
+			ec_total_elevator = np.nansum([i.coef_usage_r * i.coef_ec * i.coef_eff * i.coef_usage_h for i in self.elevator])
 
 		return ec_total_elevator
 	
@@ -618,7 +642,7 @@ class Building():
 		
 		else:
 			
-			ec_total_escalator = np.nansum([i.coef_usage_r * i.coef_facility_power * i.coef_eff * i.coef_usage_h for i in self.escalator])
+			ec_total_escalator = np.nansum([i.coef_usage_r * i.coef_power * i.coef_eff * i.coef_usage_h for i in self.escalator])
 
 		return ec_total_escalator
 	
@@ -812,7 +836,7 @@ class Building():
 			ec_water_pumping_total_comm (float): Energy consumption of water pumping consumption of all common energy sections
 		"""
 		
-		ec_water_pumping_total_comm = 0.02 * (self.height_watertower + 6.0) * (self.est_q_w + self.est_q_aw - self.wc_rainfall)
+		ec_water_pumping_total_comm = 0.02 * (self.height_watertower + 6.0) * (self.est_q_w + self.est_q_aw - self.est_q_rw)
 
 		return ec_water_pumping_total_comm
 	
@@ -1370,7 +1394,16 @@ class Building():
 		# =========================================================================================
 
 		# N2-1-3
-		if (mask_section('N2-1-3').any()): df_es_exc_temp.loc[mask_section('N2-1-3'), 'en'] = self.a_dining * 0.09 * np.average([i.n_meal_per_day for i in self.diningarea], weights=[i.a for i in self.diningarea]) * 365 * 0.7 * 1.5
+		if (mask_section('N2-1-3').any()):
+
+			if (self.n_diningarea == 0): raise ValueError('Please create diningarea first.')
+			
+			# Calculate summation of dining area and weighted average of n_meal_per_day
+			sum_a_dining        = np.nansum([i.a for i in self.diningarea])
+			mean_n_meal_per_day = np.average([i.n_meal_per_day for i in self.diningarea], weights=[i.a for i in self.diningarea])
+
+			# Calculate es
+			df_es_exc_temp.loc[mask_section('N2-1-3'), 'en'] = sum_a_dining * 0.09 * mean_n_meal_per_day * 365 * 0.7 * 1.5
 
 		# =========================================================================================
 		# 
@@ -1382,7 +1415,12 @@ class Building():
 		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * df_es_exc.loc[mask_section('N7'), 'Area'].values[0] * self.get_coef_usage_h('N7') * 1.5 
 
 		# N8
-		if (mask_section('N8').any()): df_es_exc_temp.loc[mask_section('N8'), 'en'] = (2630 * self.coef_power_cabinetrack + 51) * df_es_exc.loc[mask_section('N8'), 'Area'].values[0]
+		if (mask_section('N8').any()):
+			
+			if (self.n_datacenter == 0): raise ValueError('Please create data center first.')
+			
+			# Calculate es
+			df_es_exc_temp.loc[mask_section('N8'), 'en'] = np.nansum([i.a * (2630 * i.coef_power_cabinetrack + 51) for i in self.datacenter])
 
 		# =========================================================================================
 		# 

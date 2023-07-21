@@ -40,13 +40,13 @@ class Elevator():
 		self.elevator_n_stories_total   = self.elevator_top_floor - self.elevator_bottom_floor + self.elevator_floor_offset
 
 		# Coefficient of usage ratio of elevator
-		self.coef_usage_r               = self._get_coef_facility_usage_r_elevator()
-		self.coef_facility_ec           = self._get_coef_facility_ec_elevator()
+		self.coef_usage_r               = self._get_coef_usage_r_elevator()
+		self.coef_ec                    = self._get_coef_ec_elevator()
 
 		# Energy consumption of elevator
 		self.coef_usage_h               = np.nanmax([tool.get_coef_usage_h(i) for i in self.elevator_es])
 	
-	def _get_coef_facility_usage_r_elevator(self):
+	def _get_coef_usage_r_elevator(self):
 
 		"""
 		This method is used to get the coefficient of usage ratio of elevator by building type.
@@ -69,7 +69,7 @@ class Elevator():
 
 		return coef_usage_r_elevator
 	
-	def _get_coef_facility_ec_elevator(self):
+	def _get_coef_ec_elevator(self):
 
 		"""
 		This method is used to get the coefficient of EC of elevator by building type.
@@ -137,13 +137,13 @@ class Escalator():
 		self.escalator_n_stories_total  = self.escalator_top_floor - self.escalator_bottom_floor + self.escalator_floor_offset
 
 		# Coefficient of usage ratio of escalator
-		self.coef_usage_r               = self._get_coef_facility_usage_r_escalator()
-		self.coef_facility_power        = self._get_coef_facility_power_escalator()
+		self.coef_usage_r               = self._get_coef_usage_r_escalator()
+		self.coef_power                 = self._get_coef_power_escalator()
 
 		# Energy consumption of escalator
 		self.coef_usage_h               = np.nanmax([tool.get_coef_usage_h(i) for i in self.escalator_es])
 
-	def _get_coef_facility_usage_r_escalator(self):
+	def _get_coef_usage_r_escalator(self):
 
 		"""
 		This method is used to get the coefficient of usage ratio of escalator by building type.
@@ -166,7 +166,7 @@ class Escalator():
 
 		return coef_usage_r_escalator
 	
-	def _get_coef_facility_power_escalator(self):
+	def _get_coef_power_escalator(self):
 
 		"""
 		This method is used to get the coefficient of power of escalator by building type.
@@ -426,3 +426,12 @@ class PerformanceArea():
 		self.building_type                   = kwargs.get('building_type', None)
 		self.a                               = kwargs.get('a', 0)
 		self.coef_usage_d                    = kwargs.get('coef_usage_d', tool.get_coef_usage_d('F1'))
+
+class DataCenter():
+
+	def __init__(self, **kwargs):
+
+		# Initialize the data center object
+		self.building_type                   = kwargs.get('building_type', None)
+		self.a                               = kwargs.get('a', 0)
+		self.coef_power_cabinetrack          = kwargs.get('coef_power_cabinetrack', 3)
