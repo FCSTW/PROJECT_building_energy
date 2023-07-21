@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>FCS - 建物能耗計算工具</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="static/css/style.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+
+		<!-- Navbar (sit on top) -->
+		<div class="banner">
+			<a href="#" class="title_text"><b>FCS</b> 建物能耗計算工具</a>
+			<div class="banner-right">
+				<img src="static/img/fcs_logo.png" alt="FCS" style="height:40px;">
+				<a class="banner-item" href="#">評估</a>
+				<a class="banner-item" href="#">輸出</a>
+				<a class="banner-item" href="#">常見問題</a>
+			</div>
+		</div>
+
+		<!-- Page content -->
+		<div class="page-main">
+
+			<!-- Form Section -->
+			<div class="form">
+				
+				<h3>評估資訊輸入</h3>
+				<div class="content-1">請依據建物及其附屬設備資訊，並依照 2022 年版 EEWH-BERS 建築能效評估系統相關規範填寫。</div>
+				
+				<form action="#">
+
+					<!-- 建物評估資訊 -->
+
+					<div style="font-weight: bold; font-size: 20px; line-height: 80px;">
+						建物評估資訊
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">建物名稱</div>
+						<input class="form-input-1" type="text" placeholder="建物名稱" required name="building_name">
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">評估系統</div>
+						<select class="form-input-1" name="estimation_system">
+								<option value="BERSn">BERSn - 新建建築能效評估系統</option>
+								<option value="BERSe">BERSe - 既有建築能效評估系統</option>
+								<option value="BERSi">BERSi - 既有機構建築能效評估系統</option>
+								<option value="BERSc">BERSc - 既有便利商店能效評估系統</option>
+								<option value="RBERS">RBERS - 住宅能效評估系統（僅適用新建住宅）</option>
+						</select>
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">建物類型</div>
+							<select class="form-input-1" name="building_type">
+									<option value="A-1">A-1：集會表演</option>
+									<option value="B-1">B-1：娛樂場所</option>
+									<option value="B-2">B-2：商場百貨</option>
+									<option value="B-3">B-3：餐飲場所</option>
+									<option value="B-4">B-4：旅館</option>
+									<option value="D-1">D-1：健身休閒</option>
+									<option value="D-2">D-2：文教設施</option>
+									<option value="F-1">F-1：醫療照護</option>
+									<option value="G-1">G-1：金融證券</option>
+									<option value="G-2">G-2：辦公場所</option>
+									<option value="H-1">H-1：宿舍安養</option>
+									<option value="H-2">H-2：住宅</option>
+							</select>
+					</div>
+
+					<!-- 建物基本資訊 -->
+					
+					<div style="font-weight: bold; font-size: 20px; line-height: 80px;">
+						建物基本資訊
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">建物位置</div>
+						<input class="form-input-2" type="text" placeholder="縣市" required name="building_address_county">
+						<input class="form-input-2" type="text" placeholder="鄉鎮市區" required name="building_address_town">
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">經緯度</div>
+						<input class="form-input-2" type="text" placeholder="經度" required name="building_coordinate_longitude">
+						<input class="form-input-2" type="text" placeholder="緯度" required name="building_coordinate_latitude">
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">建物樓層數</div>
+						<input class="form-input-2" type="text" placeholder="建物地上樓層數" required name="building_n_stories_above_ground">
+						<input class="form-input-2" type="text" placeholder="建物地下樓層數" required name="building_n_stories_below_ground">
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">建物樓層修正量</div>
+						<input class="form-input-1" type="text" placeholder="建物樓層修正量" value="0" required name="building_n_stories_above_ground">
+					</div>
+
+					<!-- 能耗基本資訊 -->
+					
+					<div style="font-weight: bold; font-size: 20px; line-height: 80px;">
+						能耗基本資訊
+					</div>
+					
+					<div class="form-line">
+						<div class="form-label">建物實際能耗</div>
+						<input class="form-input-1" type="text" placeholder="建物實際能耗 [kWh/year]" required name="ec">
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">建物實際其他能耗</div>
+						<input class="form-input-1" type="text" placeholder="建物實際其他能耗 [kWh/year]" required name="ec_other">
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">建物雨水利用量</div>
+						<input class="form-input-1" type="text" placeholder="建物雨水利用量 [m3/year]" required name="est_q_rw">
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">一般分區熱水加熱型態</div>
+						<select class="form-input-1" name="ec_heating_comm">
+								<option value="HE">HE - 儲熱電熱水器加熱</option>
+								<option value="HPE">HPE - 商用氣源熱泵加熱</option>
+								<option value="Other">液態燃料加熱或其他</option>
+						</select>
+					</div>
+
+					<div class="form-line">
+						<div class="form-label">水塔高度</div>
+						<input class="form-input-1" type="text" placeholder="水塔高度 [m]" required name="height_watertower">
+					</div>
+
+					<!-- 耗能分區 -->
+					
+					<div style="font-weight: bold; font-size: 20px; line-height: 80px;">
+						耗能分區
+					</div>
+					
+					<div id="building-sections">
+						<!-- 這裡將動態新增建物分區的小表單放置 -->
+					</div>
+					<div class="form-line">
+						<button type="button" onclick="addBuildingSection()">新增建物分區</button>
+					</div>
+
+					<button class="form-button" type="submit">開始評估</button>
+				</form>
+			</div>
+		</div>
+	</body>
+  	<script src="static/js/dynamic_table_es.js"></script>
+</html>
