@@ -288,6 +288,8 @@ class Building():
 		# 
 		# =========================================================================================
 
+		print('EUI: {}'.format(self.est_eui))
+
 	def create_elevator(self, **kwargs):
 
 		"""
