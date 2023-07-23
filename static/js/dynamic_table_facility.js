@@ -1,26 +1,36 @@
 // Initialization
 
-let buildingSectionCount = 0;
+let elevatorCount = 0;
+let escalatorCount = 0;
 
 // ====================================================================================================
 //
-// Add a new row to the ES table
+// Add a new row to the elevator table
 //
 // ====================================================================================================
 
-function addBuildingSection() {
-
-    // Select the div
-	const Div = document.getElementById('building-sections');
-
+function addElevator() {
+	
+	// Select the div
+	const Div = document.getElementById('elevators');
+	
 	// Create a new row
 	const newRow = document.createElement('div');
-	newRow.id = `section-${buildingSectionCount}`;
+	newRow.id = `elevator-${elevatorCount}`;
 	newRow.innerHTML = `
 		<div style="width: 100%; margin: 1em 0 1em 0;">
 			<div style="width: 35%; float: left;">
-				<label class="form-label-2">建物耗能分區</label>
-				<select class="form-input-2" name="es-id-${buildingSectionCount}" onchange="esIdChange(${buildingSectionCount})" aria-label="es-id-${buildingSectionCount}">
+				<label class="form-label-2">電梯最低樓層</label>
+				<input class="form-input-2" type="number" name="elevator-attr-${elevatorCount}-elevator_bottom_floor" aria-label="elevator-attr-${elevatorCount}-elevator_bottom_floor">
+
+				<label class="form-label-2">電梯最高樓層</label>
+				<input class="form-input-2" type="number" name="elevator-attr-${elevatorCount}-elevator_top_floor" aria-label="elevator-attr-${elevatorCount}-elevator_top_floor">
+
+				<label class="form-label-2">電梯樓層修正量</label>
+				<input class="form-input-2" type="text" name="elevator-attr-${elevatorCount}-elevator_floor_offset" aria-label="elevator-attr-${elevatorCount}-elevator_floor_offset">
+
+				<label class="form-label-2">電梯經過分區</label>
+				<select class="form-input-2" multiple name="elevator-attr-${elevatorCount}-elevator_es" aria-label="elevator-attr-${elevatorCount}-elevator_es">
 					<option disabled selected>選擇建物耗能分區</option>
 					<option value="A1">A1. 小型護理或長照機構</option>
 					<option value="A2">A2. 小型日照機構、幼兒園</option>
@@ -122,121 +132,14 @@ function addBuildingSection() {
 				</select>
 			</div>
 			<div style="width: 40%; float: left;">
-				<div name="form-es-attr-${buildingSectionCount}" style="flex-direction: column; display: flex;"></div>
+				<div name="form-es-attr-${elevatorCount}" style="flex-direction: column; display: flex;"></div>
 			</div>
 			<div style="width: 20%; float: right;">
-				<button class="form-button-dynamic-delete" type="button" onclick="removeBuildingSection(${buildingSectionCount})">刪除</button>
+				<button class="form-button-dynamic-delete" type="button" onclick="removeBuildingSection(${elevatorCount})">刪除</button>
 			</div>
 		</div>
 		<hr style="clear: both;">
 	`;
 	Div.appendChild(newRow);
-	buildingSectionCount++;
-}
-
-// ====================================================================================================
-//
-// remove a row to the ES table
-//
-// ====================================================================================================
-
-function removeBuildingSection(sectionIndex) {
-	const Div = document.getElementById('building-sections');
-	const removedRow = document.querySelector(`#section-${sectionIndex}`);
-	Div.removeChild(removedRow);
-}
-
-// ====================================================================================================
-//
-// clear all rows to the ES table
-//
-// ====================================================================================================
-
-function clearBuildingSections() {
-	const Div = document.getElementById('building-sections');
-	Div.innerHTML = '';
-	buildingSectionCount = 0;
-}
-
-// ====================================================================================================
-//
-// ES ID change
-//
-// ====================================================================================================
-
-function esIdChange(sectionIndex) {
-	// Select the div
-	const form = document.querySelector(`div[name="form-es-attr-${sectionIndex}"]`);
-	// Get the selected value
-	const esId = document.querySelector(`select[name="es-id-${sectionIndex}"]`).value;
-	
-	// Clear the form
-	form.innerHTML = `
-		<div>
-			<label class="form-label-2">分區面積</label>
-			<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-area" placeholder="分區面積 [m2]" onchange="esAreaChange()" 	required>
-		</div>
-	`;
-
-	// Create the new form
-	switch (esId) {
-		case 'A1':
-			form.innerHTML = form.innerHTML + `
-				<div>
-					<label class="form-label-2">建築物類型</label>
-					<select class="form-input-3" name="es-attr-${sectionIndex}-building_type" aria-label="es-attr-${sectionIndex}-building_type">
-						<option value="1">1. 鋼筋混凝土造</option>
-						<option value="2">2. 鋼骨造</option>
-						<option value="3">3. 鋼筋混凝土與鋼骨混合造</option>
-						<option value="4">4. 鋼筋混凝土與其他造</option>
-						<option value="5">5. 鋼骨造與其他造</option>
-						<option value="6">6. 其他造</option>
-					</select>
-				</div>
-			`
-			break;
-		case 'A2':
-			form.innerHTML = form.innerHTML + `
-				<div>
-					<label class="form-label-2">建築物類型</label>
-					<input class="form-input-3" type="text" name="es-attr-${sectionIndex}-usage_i">
-				</div>
-			`
-			break;
-		case 'H1': case 'H2':
-			form.innerHTML = form.innerHTML + `
-				<div>
-					<label class="form-label-2">客房數量</label>
-					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-n_room" placeholder="客房數量" required>
-				</div>
-				<div>
-					<label class="form-label-2">年住房率</label>
-					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-coef_usage_room" placeholder="年住房率（客房使用比例，介於 0 至 1）" min="0" max="1" step="0.01" required>
-				</div>
-			`
-			break;
-	}
-}
-
-// ====================================================================================================
-//
-// ES area change
-//
-// ====================================================================================================
-
-// Add all the ES area and change the text of div form-total-area
-function esAreaChange() {
-	let totalArea = 0;
-	for (let i = 0; i < buildingSectionCount; i++) {
-	 	// Check if the input object exists
-	 	if (!document.querySelector(`input[name="es-attr-${i}-area"]`)) {
-	 		continue;
-	 	}
-	 	const area = document.querySelector(`input[name="es-attr-${i}-area"]`).value;
-	 	// If the area is not null, add it to the total area
-	 	if (area) {
-	 		totalArea += parseFloat(area);
-	 	}
-	}	
-	document.getElementById('form-total-area').innerHTML = `分區總面積：${totalArea} [m2]`;
+	elevatorCount++;
 }
