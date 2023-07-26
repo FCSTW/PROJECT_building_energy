@@ -25,8 +25,6 @@ class Building():
 	This class is used to create a building object
 	"""
 
-	#__path__ = os.path.dirname(__file__).replace('\\', '/').replace('C:/', '/') + '/'
-
 	def __init__(self, **kwargs):
 
 		"""
@@ -35,9 +33,11 @@ class Building():
 
 		Arguments:
 
-			estimation_system (str): The estimation system used to estimate the EUI score of a building.
+			None
 
-			building_type (str): The type of a building.
+		Output:
+
+			None
 		"""
 
 		# Initialize the building object
@@ -56,7 +56,7 @@ class Building():
 		self.building_n_stories_below_ground = kwargs.get('building_n_stories_below_ground', None)
 		self.building_floor_offset           = kwargs.get('building_floor_offset', 0)
 
-		# 1-c. Energy consumption sections
+		# 1-c. Energy consumption
 		self.ec                              = kwargs.get('ec', None)
 		self.ec_other                        = kwargs.get('ec_other', None)
 		self.est_q_rw                        = kwargs.get('est_q_rw', 0)
@@ -148,6 +148,27 @@ class Building():
 
 		"""
 		This method is used to estimate the EUI score of a building
+		===========================================================================================
+
+		Arguments:
+
+			None
+
+		Output:
+
+			est_eui (float): The estimated EUI of a building.
+
+			est_eui_min (float): The minimum estimated EUI of a building.
+
+			est_eui_g (float): The green building criteria estimated EUI of a building.
+
+			est_eui_m (float): The median estimated EUI of a building.
+
+			est_eui_max (float): The maximum estimated EUI of a building.
+
+			est_score (float): The estimated score of a building.
+
+			est_score_level (str): The estimated score level of a building.
 		"""
 
 		# =========================================================================================
@@ -170,7 +191,7 @@ class Building():
 		# Read the files for EUI score: EUI median, maximum, and minimum
 		df_eui_m                        = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.m.csv')
 		df_eui_max                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.max.csv')
-		df_eui_min                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.m.csv')
+		df_eui_min                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.min.csv')
 
 		df_eui_m['Energy_Section_ID']   = df_eui_m['Energy_Section'].str.split('. ').str[0]
 		df_eui_max['Energy_Section_ID'] = df_eui_max['Energy_Section'].str.split('. ').str[0]
@@ -288,7 +309,35 @@ class Building():
 		# 
 		# =========================================================================================
 
-		print('EUI: {}'.format(self.est_eui))
+		# Calculate score
+		if (self.est_eui <= self.est_eui_g):
+
+			self.est_score = min(50 + 50 * (self.est_eui_g - self.est_eui) / (self.est_eui_g - self.est_eui_min), 100)
+		
+		elif (self.est_eui > self.est_eui_g):
+
+			self.est_score = max(50 * (self.est_eui_max - self.est_eui) / (self.est_eui_max - self.est_eui_g), 0)
+
+		# Caclulate score level
+		if (self.est_score >= 90): self.est_score_level = '1+'
+		elif (self.est_score >= 80): self.est_score_level = '1'
+		elif (self.est_score >= 70): self.est_score_level = '2'
+		elif (self.est_score >= 60): self.est_score_level = '3'
+		elif (self.est_score >= 50): self.est_score_level = '4'
+		elif (self.est_score >= 40): self.est_score_level = '5'
+		elif (self.est_score >= 20): self.est_score_level = '6'
+		elif (self.est_score >= 0): self.est_score_level = '7'
+
+		# =========================================================================================
+		# 
+		# Finish estimation
+		# 
+		# =========================================================================================
+
+		return \
+			self.est_eui, \
+			self.est_eui_min, self.est_eui_g, self.est_eui_m, self.est_eui_max, \
+			self.est_score, self.est_score_level
 
 	def create_elevator(self, **kwargs):
 
