@@ -50,4 +50,5 @@ if (__name__ == '__main__'):
 		coef_usage_d=59,
 	)
 
-	building_1.estimate()
+	est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level = building_1.estimate()
+	algorithm_bers.plot.plot_eui_diagram(est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level)
