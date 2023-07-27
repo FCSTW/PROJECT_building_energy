@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<title>FCS - 建物能耗計算工具</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="/static/css/style.css" rel="stylesheet" type="text/css">
+        <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+	</head>
+	<body>
+
+		<!-- Banner -->
+		<div class="banner">
+			<a href="#" class="banner-title"><b>FCS</b> 建物能耗計算工具</a>
+			<div class="banner-right">
+				<a class="banner-item" href="/app/">評估</a>
+				<a class="banner-item" href="/app/result/">輸出</a>
+				<a class="banner-item" href="/app/faq/">常見問題</a>
+				<div class="banner-logo">
+					<img src="/static/img/fcs_logo.png" style="width: 60px;", alt="FCS">
+				</div>
+			</div>
+		</div>
+
+		<!-- Page content -->
+		<div class="page-main">
+
+			<!-- Form Section -->
+			<div class="form">
+				
+				<h4>評估結果</h3>
+
+					<div class="content-1">
+						{% if (data != None) %}
+						
+						<div style="display: flex; flex-direction: column;">
+							<div style="height: 3em; font-size: 14pt; font-weight: 700;">建物能耗評估 {{ file }} 結果如下：</div>
+							<div style="height: 3em; font-size: 14pt;">{{ data|safe }}</div>
+							<div><img style="width: 50%; margin-top: 150px;" src="{{ url_for('send_file_output', file=file) }}" alt="estimation"></div>
+						</div>
+					
+						{% else %}
+						
+						<!-- List all directories under output folder -->
+							{% for file in file_list %}
+								<div style="height: 3em; font-size: 18pt; color: #0e1ea8d3;">建物能耗評估 - <a href='{{ file }}'>{{ file }}</a></div>
+							{% endfor %}
+					
+						{% endif %}
+					</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,217 @@
+/* General */
+* {
+	font-family: Microsoft JhengHei;
+}
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+/* Navigation bar */
+.floating-menu {
+	position: fixed;
+	top: 100px;
+	right: 20px;
+	z-index: 999;
+	width: 62px;
+	background-color: #ccccccd3;
+	box-shadow: 0 0 15px rgba(0,0,0,.1);
+}
+
+/* Banner */
+.banner{
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	height: 60px;
+	padding: 15px 0 15px 0;
+	width: 100%;
+	z-index: 1;
+	overflow: hidden;
+	background-color: #0e1ea8d3;
+	box-shadow: 0 0 15px rgba(0,0,0,.1);
+}
+.banner-title{
+	font-size: 1.5em;
+	font-weight: 900;
+	padding: 0;
+	color: white;
+	float: left;
+	margin: 10px 0 auto 40px;
+	vertical-align: middle;
+}
+.banner-right{
+	text-align: right!important;
+	float: right!important;
+	margin-right: 40px;
+}
+.banner-item{
+	font-size: 1.2em;
+	padding: 8px 16px;
+	margin: 10px 0 auto 0;
+	float: left;
+	color: white;
+}
+.banner-logo{
+	height: 40px;
+	width: 100px;
+	margin-right: 10px;
+	float: left;
+}
+
+/* Main */
+.page-main{
+	margin-top: 100px;
+}
+
+/* Form */
+.form{
+	padding: 50px 80px;
+	margin: 20px auto 20px auto;
+	width: 80%;
+	background-color: #fff;
+	border-radius: 2%;
+	box-shadow: 0 0 15px rgba(0,0,0,.1);
+}
+.form-line{
+	font-size: 1.1em;
+	display: flex;
+	text-align: center;
+	overflow: auto;
+	vertical-align: middle;
+}
+.form-label-1{
+	float: left;
+	height: 1.5em;
+	width: 200px;
+	margin: 1em 0 1em 0;
+	padding: 0;
+	text-align: center;
+}
+.form-label-2{
+	float: left;
+	height: 1.5em;
+	width: 150px;
+	margin: 1em 0 1em 0;
+	padding: 0;
+	text-align: center;
+}
+.form-input-1{
+	display: inline;
+	width: 500px;
+	padding: 12px 20px;
+	margin: 8px 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+}
+.form-input-2{
+	display: inline;
+	width: 250px;
+	padding: 12px 20px;
+	margin: 8px 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+}
+.form-input-3{
+	display: inline;
+	width: 350px;
+	padding: 12px 20px;
+	margin: 8px 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+}
+.form-button-submit{
+	display: inline;
+	height: 3em;
+	width: 200px;
+	padding: 12px 20px;
+	margin: 100px 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+	background-color: #2d87fd;
+	color: white;
+}
+
+/* Dynamic form (for energy sections) */
+.form-button-dynamic-add{
+	display: inline;
+	height: 3em;
+	width: 200px;
+	padding: 5px 12px;
+	margin: 10px 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+	background-color: #0552d6;
+	color: white;
+}
+.form-button-dynamic-add:hover{
+	color: #000000;
+}
+.form-button-dynamic-clear{
+	display: inline;
+	height: 3em;
+	width: 200px;
+	padding: 5px 12px;
+	margin: 10px 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+	background-color: #ff8686;
+	color: white;
+}
+.form-button-dynamic-add:hover{
+	color: #000000;
+}
+.form-button-dynamic-delete{
+	display: inline;
+	vertical-align: middle;
+	float: right;
+	height: 3.5em;
+	width: 200px;
+	padding: 12px 12px;
+	margin: 0 0 0 30px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+	background-color: #ff9494;
+	color: white;
+}
+.form-button-dynamic-delete:hover{
+	color: #ff0000;
+}
+
+/* Content */
+.content-1{
+	padding: 20px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+/* Heading */
+h3{
+	font-size: 2em;
+	font-weight: 600;
+	margin: 2em 0 2em 0;
+	padding: 20px 0;
+}
+h4{
+	font-size: 1.5em;
+	font-weight: 600;
+	margin: 1.5em 0 1.5em 0;
+}
+h5{
+	font-size: 1em;
+	font-weight: 400;
+	margin: 1em 0 1em 0;
+}

@@ -1,9 +1,0 @@
-﻿Section_Type,Section_ID,Area,AC_Operation,AC_Type
-common,B3,1082.31,interval,normal
-common,D5,425.96,continue,normal
-common,D4,105.79,continue,normal
-common,D3,121.1,continue,normal
-common,F1,676.53,continue,watercooled
-common,F2,512.62,continue,normal
-exclusive,N4-1,63.28,,
-exclusive,N3-2-1,1136.84,,

@@ -21,6 +21,7 @@ class Elevator():
 
 		# Initialize the elevator object
 		self.building_type                   = kwargs.get('building_type', None)
+		self.elevator_type                   = kwargs.get('elevator_type', 'common')
 		self.elevator_bottom_floor           = kwargs.get('elevator_bottom_floor', None)
 		self.elevator_top_floor              = kwargs.get('elevator_top_floor', None)
 		self.elevator_floor_offset           = kwargs.get('elevator_floor_offset', 0)
@@ -84,20 +85,36 @@ class Elevator():
 			coef_ec_elevator (float): Coefficient of EC of elevator
 		"""
 
-		# Read the file for coefficient of EC of elevator
-		df_coef = pd.read_csv(__path__ + '../data/coef_facility/coef_facility_ec_elevator.csv')
+		if (self.elevator_type == 'common'):
 
-		# Get the coefficient of EC of elevator
-		df_coef = df_coef.loc[\
-			(df_coef['Stories_min']<=self.elevator_n_stories_total) &
-			(df_coef['Stories_max']>=self.elevator_n_stories_total)
-		]
+			# Read the file for coefficient of EC of elevator
+			df_coef = pd.read_csv(__path__ + '../data/coef_facility/coef_facility_ec_elevator.csv')
 
-		# Create a key for sorting
-		df_coef['key_sorting'] = \
-			(np.array(df_coef['n_People'])-self.coef_people_per_elevator)**2 + \
-			1e-2*(np.array(df_coef['n_Load'])-self.coef_load_per_elevator)**2 + \
-			0.5*(np.array(df_coef['Speed'])-self.coef_speed)**2
+			# Get the coefficient of EC of elevator
+			df_coef = df_coef.loc[\
+				(df_coef['Stories_min']<=self.elevator_n_stories_total) &
+				(df_coef['Stories_max']>=self.elevator_n_stories_total)
+			]
+
+			# Create a key for sorting
+			df_coef['key_sorting'] = \
+				(np.array(df_coef['n_People'])-self.coef_people_per_elevator)**2 + \
+				1e-2*(np.array(df_coef['n_Load'])-self.coef_load_per_elevator)**2 + \
+				0.5*(np.array(df_coef['Speed'])-self.coef_speed)**2
+		
+		elif (self.elevator_type == 'freight'):
+
+			# Read the file for coefficient of EC of elevator
+			df_coef = pd.read_csv(__path__ + '../data/coef_facility/coef_facility_ec_elevator_industrial.csv')
+
+			# Create a key for sorting
+			df_coef['key_sorting'] = \
+				1e-2*(np.array(df_coef['n_Load'])-self.coef_load_per_elevator)**2 + \
+				0.5*(np.array(df_coef['Speed'])-self.coef_speed)**2
+		
+		else:
+
+			raise ValueError('The elevator type is not supported.')
 
 		# Get the coefficient of EC of elevator
 		coef_ec_elevator = df_coef.loc[df_coef['key_sorting']==df_coef['key_sorting'].min(), 'FLE'].values[0]
@@ -123,18 +140,12 @@ class Escalator():
 		self.escalator_width                 = kwargs.get('escalator_width', None)
 		self.escalator_es                    = kwargs.get('escalator_es', [])
 		self.coef_eff	                     = kwargs.get('coef_eff', 1.0)
-		self.coef_people_per_escalator       = kwargs.get('coef_people_per_escalator', None)
-		self.coef_load_per_escalator         = kwargs.get('coef_load_per_escalator', None)
-		self.coef_speed                      = kwargs.get('coef_speed', None)
 
 		# =========================================================================================
 		#
 		# Initialize the escalator object
 		#
 		# =========================================================================================
-
-		# Basic information
-		self.escalator_n_stories_total  = self.escalator_top_floor - self.escalator_bottom_floor + self.escalator_floor_offset
 
 		# Coefficient of usage ratio of escalator
 		self.coef_usage_r               = self._get_coef_usage_r_escalator()
@@ -222,14 +233,8 @@ class SportBathroom():
 		
 		# Initialize the sport bathroom object
 		self.building_type                   = kwargs.get('building_type', None)
-		self.ec_heating                      = kwargs.get('ec_heating', 'BHPE')
 		self.a                               = kwargs.get('a', 0)
 		self.coef_usage_h                    = kwargs.get('coef_usage_h', tool.get_coef_usage_h('L3'))
-
-		# =========================================================================================
-		# Get the ec of heating
-		if (self.ec_heating == 'BHPE'): self.ec_heating = 6.5
-		else: self.ec_heating = 0.0
 	
 class SwimmingPool():
 
