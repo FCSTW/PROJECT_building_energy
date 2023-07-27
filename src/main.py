@@ -300,7 +300,7 @@ if (__name__ == '__main__'):
 	import dependency.algorithm_bers as algorithm_bers
 	
 	# Read section tables
-	df_es      = pd.read_csv('../input/building_config/energysection.test.ver1.csv')
+	df_es      = pd.read_csv('input/building_config/energysection.test.ver1.csv')
 	df_es_comm = df_es[df_es['Section_Type']=='common']
 	df_es_exc  = df_es[df_es['Section_Type']=='exclusive']
 	

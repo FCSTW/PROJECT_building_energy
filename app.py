@@ -33,9 +33,6 @@ def output_json(obj, file_name):
 @app.route("/app/", methods=['GET', 'POST'])
 def page_main():
 
-	src.main.main_script(file='building_config.FCS.20230727121136.json')
-	quit()
-
 	# If the user has submitted the form, output the data to a JSON file. Otherwise, render the main page.
 	if (flask.request.method == 'POST'):
 

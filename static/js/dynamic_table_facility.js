@@ -9,7 +9,6 @@ let escalatorCount = 0;
 // ====================================================================================================
 
 function addElevator() {
-
 	// Select the div
 	const Div = document.getElementById('elevators');
 	
