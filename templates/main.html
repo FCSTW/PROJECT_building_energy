@@ -4,19 +4,36 @@
 		<title>FCS - 建物能耗計算工具</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link href="static/css/style.css" rel="stylesheet" type="text/css">
+		<link href="/static/css/style.css" rel="stylesheet" type="text/css">
+		<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+		<script src="/static/js/const.js"></script>
+		<script src="/static/js/dynamic_table_es.js"></script>
+		<script src="/static/js/dynamic_table_facility.js"></script>
+		<script src="/static/js/form_validation.js"></script>
+		<script src="/static/js/nav_bar.js"></script>
 	</head>
 	<body>
 
-		<!-- Navbar (sit on top) -->
+		<!-- Navigation Bar -->
+		<div class="floating-menu">
+			<img src="/static/img/estimation_1.png" style="width: 60px;", alt="building-estimation-information" onclick="scrollToAnchor('section-building-estimation-information')">
+			<img src="/static/img/building_1.png" style="width: 60px;", alt="building-basic-information" onclick="scrollToAnchor('section-building-basic-information')">
+			<img src="/static/img/ec_1.png" style="width: 60px;", alt="building-ec" onclick="scrollToAnchor('section-building-ec')">
+			<img src="/static/img/es_1.png" style="width: 60px;", alt="building-es" onclick="scrollToAnchor('section-building-es')">
+			<img src="/static/img/elevator_1.png" style="width: 60px;", alt="elevator" onclick="scrollToAnchor('section-elevator')">
+			<img src="/static/img/escalator_1.png" style="width: 60px;", alt="escalator" onclick="scrollToAnchor('section-escalator')">
+		</div>
+
+		<!-- Banner -->
 		<div class="banner">
 			<a href="#" class="banner-title"><b>FCS</b> 建物能耗計算工具</a>
 			<div class="banner-right">
-				<a class="banner-item" href="#">評估</a>
-				<a class="banner-item" href="#">輸出</a>
-				<a class="banner-item" href="#">常見問題</a>
+				<a class="banner-item" href="/app/">評估</a>
+				<a class="banner-item" href="/app/result/">輸出</a>
+				<a class="banner-item" href="/app/faq/">常見問題</a>
 				<div class="banner-logo">
-					<img src="static/img/fcs_logo.png" style="width: 60px;", alt="FCS">
+					<img src="/static/img/fcs_logo.png" style="width: 60px;", alt="FCS">
 				</div>
 			</div>
 		</div>
@@ -25,16 +42,16 @@
 		<div class="page-main">
 
 			<!-- Form Section -->
-			<div class="form" name="form-main">
+			<div class="form">
 				
 				<h3>評估資訊輸入</h3>
 				<div class="content-1">請依據建物及其附屬設備資訊，並依照 2022 年版 EEWH-BERS 建築能效評估系統相關規範填寫。</div>
 				
-				<form id="main-form">
+				<form id="main-form" method="POST" autocomplete="off" onsubmit="return formValidation()">
 
 					<!-- 建物評估資訊 -->
 
-					<h4>建物評估資訊</h4>
+					<h4 id="section-building-estimation-information">建物評估資訊</h4>
 
 					<div class="form-line">
 						<label class="form-label-1">建物名稱</label>
@@ -72,7 +89,7 @@
 
 					<!-- 建物基本資訊 -->
 					
-					<h4>建物基本資訊</h4>
+					<h4 id="section-building-basic-information">建物基本資訊</h4>
 
 					<div class="form-line">
 						<label class="form-label-1">建物位置</label>
@@ -99,7 +116,7 @@
 
 					<!-- 能耗基本資訊 -->
 					
-					<h4>能耗基本資訊</h4>
+					<h4 id="section-building-ec">能耗基本資訊</h4>
 					
 					<div class="form-line">
 						<label class="form-label-1">建物實際能耗</label>
@@ -132,20 +149,50 @@
 
 					<!-- 耗能分區 -->
 					
-					<h4>耗能分區</h4>
+					<h4 id="section-building-es">耗能分區</h4>
 					<div class="form-line">
-						<button type="button" class="form-button-dynamic-add" onclick="addBuildingSection()">新增建物分區</button>
-						<button type="button" class="form-button-dynamic-clear" onclick="clearBuildingSections()">清除所有建物分區</button>
+						<button type="button" class="form-button-dynamic-add" onclick="addEnergySection()">新增耗能分區</button>
+						<button type="button" class="form-button-dynamic-clear" onclick="clearEnergySections()">清除所有耗能分區</button>
 						<div id="form-total-area" style="margin-left: 50px; display: flex; align-items: center;"></div>
 					</div>
 					
-					<div id="building-sections" style="flex-direction: column; display: flex;" onkeydown="return event.key != 'Enter';"></div>
+					<div id="energy-sections" style="flex-direction: column; display: flex;" onkeydown="return event.key != 'Enter';"></div>
+					
 
-					<button class="form-button-submit" type="button" onclick="saveAsJSON()">開始評估</button>
+					<!-- 免評估分區 -->
+					
+					<h4 id="section-building-es-exclusive">免評估分區</h4>
+					<div class="form-line">
+						<button type="button" class="form-button-dynamic-add" onclick="addEnergySectionExclusive()">新增免評估分區</button>
+						<button type="button" class="form-button-dynamic-clear" onclick="clearEnergySectionsExclusive()">清除所有免評估分區</button>
+						<div id="form-total-area" style="margin-left: 50px; display: flex; align-items: center;"></div>
+					</div>
+					
+					<div id="energy-sections-exclusive" style="flex-direction: column; display: flex;" onkeydown="return event.key != 'Enter';"></div>
+					
+					<!-- 電梯 -->
+
+					<h4 id="section-elevator">電梯</h4>
+					<div class="form-line">
+						<button type="button" class="form-button-dynamic-add" onclick="addElevator()">新增電梯</button>
+						<button type="button" class="form-button-dynamic-clear" onclick="clearElevators()">清除所有電梯</button>
+					</div>
+
+					<div id="elevators" style="flex-direction: column; display: flex;" onkeydown="return event.key != 'Enter';"></div>
+
+					<!-- 電扶梯 -->
+
+					<h4 id="section-escalator">電扶梯</h4>
+					<div class="form-line">
+						<button type="button" class="form-button-dynamic-add" onclick="addEscalator()">新增電扶梯</button>
+						<button type="button" class="form-button-dynamic-clear" onclick="clearEscalators()">清除所有電扶梯</button>
+					</div>
+
+					<div id="escalators" style="flex-direction: column; display: flex;" onkeydown="return event.key != 'Enter';"></div>
+
+					<button class="form-button-submit" type="submit">開始評估</button>
 				</form>
 			</div>
 		</div>
 	</body>
-  	<script src="static/js/dynamic_table_es.js"></script>
-	<script src="static/js/form_output.js"></script>
 </html>

@@ -25,8 +25,6 @@ class Building():
 	This class is used to create a building object
 	"""
 
-	#__path__ = os.path.dirname(__file__).replace('\\', '/').replace('C:/', '/') + '/'
-
 	def __init__(self, **kwargs):
 
 		"""
@@ -35,9 +33,11 @@ class Building():
 
 		Arguments:
 
-			estimation_system (str): The estimation system used to estimate the EUI score of a building.
+			None
 
-			building_type (str): The type of a building.
+		Output:
+
+			None
 		"""
 
 		# Initialize the building object
@@ -50,20 +50,20 @@ class Building():
 		self.building_coordinate             = kwargs.get('building_coordinate', None)
 		self.building_address_county         = kwargs.get('building_address_county', None)
 		self.building_address_town           = kwargs.get('building_address_town', None)
-		self.building_es_comm                = kwargs.get('building_es_comm', None)
-		self.building_es_exc                 = kwargs.get('building_es_exc', None)
 		self.building_n_stories_above_ground = kwargs.get('building_n_stories_above_ground', None)
 		self.building_n_stories_below_ground = kwargs.get('building_n_stories_below_ground', None)
 		self.building_floor_offset           = kwargs.get('building_floor_offset', 0)
+		self.building_es_comm                = kwargs.get('building_es_comm', None)
+		self.building_es_exc                 = kwargs.get('building_es_exc', None)
 
-		# 1-c. Energy consumption sections
+		# 1-c. Energy consumption
 		self.ec                              = kwargs.get('ec', None)
 		self.ec_other                        = kwargs.get('ec_other', None)
 		self.est_q_rw                        = kwargs.get('est_q_rw', 0)
 		self.ec_heating_comm                 = kwargs.get('ec_heating_comm', 'HE')
 		self.height_watertower	             = kwargs.get('height_watertower', None)
 
-		# 2. Building information
+		# 2. Building facility information
 		# Elevator information
 		self.elevator                        = kwargs.get('elevator', [])
 		self.n_elevator                      = len(self.elevator)
@@ -148,6 +148,27 @@ class Building():
 
 		"""
 		This method is used to estimate the EUI score of a building
+		===========================================================================================
+
+		Arguments:
+
+			None
+
+		Output:
+
+			est_eui (float): The estimated EUI of a building.
+
+			est_eui_min (float): The minimum estimated EUI of a building.
+
+			est_eui_g (float): The green building criteria estimated EUI of a building.
+
+			est_eui_m (float): The median estimated EUI of a building.
+
+			est_eui_max (float): The maximum estimated EUI of a building.
+
+			est_score (float): The estimated score of a building.
+
+			est_score_level (str): The estimated score level of a building.
 		"""
 
 		# =========================================================================================
@@ -170,7 +191,7 @@ class Building():
 		# Read the files for EUI score: EUI median, maximum, and minimum
 		df_eui_m                        = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.m.csv')
 		df_eui_max                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.max.csv')
-		df_eui_min                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.m.csv')
+		df_eui_min                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.min.csv')
 
 		df_eui_m['Energy_Section_ID']   = df_eui_m['Energy_Section'].str.split('. ').str[0]
 		df_eui_max['Energy_Section_ID'] = df_eui_max['Energy_Section'].str.split('. ').str[0]
@@ -210,7 +231,6 @@ class Building():
 		self.est_eui_max     = self.building_ur * (self.est_aeui_max + self.est_leui_max + self.est_eeui_m)
 
 		# Calculate area, EUI for exclusive energy sections
-		self.est_a_es_exc    = self.building_es_exc['Area'].sum().round(2)
 		self.est_e_n         = self._calc_e_n(self.building_es_exc)
 
 		# =========================================================================================
@@ -287,6 +307,36 @@ class Building():
 		# Calculate score
 		# 
 		# =========================================================================================
+
+		# Calculate score
+		if (self.est_eui <= self.est_eui_g):
+
+			self.est_score = min(50 + 50 * (self.est_eui_g - self.est_eui) / (self.est_eui_g - self.est_eui_min), 100)
+		
+		elif (self.est_eui > self.est_eui_g):
+
+			self.est_score = max(50 * (self.est_eui_max - self.est_eui) / (self.est_eui_max - self.est_eui_g), 0)
+
+		# Caclulate score level
+		if (self.est_score >= 90): self.est_score_level = '1+'
+		elif (self.est_score >= 80): self.est_score_level = '1'
+		elif (self.est_score >= 70): self.est_score_level = '2'
+		elif (self.est_score >= 60): self.est_score_level = '3'
+		elif (self.est_score >= 50): self.est_score_level = '4'
+		elif (self.est_score >= 40): self.est_score_level = '5'
+		elif (self.est_score >= 20): self.est_score_level = '6'
+		elif (self.est_score >= 0): self.est_score_level = '7'
+
+		# =========================================================================================
+		# 
+		# Finish estimation
+		# 
+		# =========================================================================================
+
+		return \
+			self.est_eui, \
+			self.est_eui_min, self.est_eui_g, self.est_eui_m, self.est_eui_max, \
+			self.est_score, self.est_score_level
 
 	def create_elevator(self, **kwargs):
 
@@ -413,7 +463,7 @@ class Building():
 		if ('building_type' in kwargs): kwargs.pop('building_type')
 		if ('building_cz' in kwargs): kwargs.pop('building_cz')
 
-		new_sportbathroom = building_facility.Sportbathroom(
+		new_sportbathroom = building_facility.SportBathroom(
 			building_type=self.building_type,
 			building_cz=self.building_cz,
 			**kwargs
@@ -1379,13 +1429,37 @@ class Building():
 		# =========================================================================================
 
 		# N2-1-1
-		if (mask_section('N2-1-1').any()): df_es_exc_temp.loc[mask_section('N2-1-1'), 'en'] = self.n_hotelroom * 5.85 * 365 * self.coef_usage_r_hotelroom * 2.0
+		if (mask_section('N2-1-1').any()):
+
+			if (self.n_hotel == 0): raise ValueError('Please create hotel first.')
+
+			# Calculate the summation of hotel room and weighted average of coef_usage_r_hotelroom
+			sum_n_hotelroom             = np.nansum([i.n_room for i in self.hotel])
+			mean_coef_usage_r_hotelroom = np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
+			
+			df_es_exc_temp.loc[mask_section('N2-1-1'), 'en'] = sum_n_hotelroom * 5.85 * 365 * mean_coef_usage_r_hotelroom * 2.0
 		
 		# N2-1-2
-		if (mask_section('N2-1-2').any()): df_es_exc_temp.loc[mask_section('N2-1-2'), 'en'] = self.n_hotelroom * 3.85 * 365 * self.coef_usage_r_hotelroom * 1.5
+		if (mask_section('N2-1-2').any()):
+			
+			if (self.n_hotel == 0): raise ValueError('Please create hotel first.')
+
+			# Calculate the summation of hotel room and weighted average of coef_usage_r_hotelroom
+			sum_n_hotelroom             = np.nansum([i.n_room for i in self.hotel])
+			mean_coef_usage_r_hotelroom = np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
+			
+			df_es_exc_temp.loc[mask_section('N2-1-2'), 'en'] = sum_n_hotelroom * 3.85 * 365 * mean_coef_usage_r_hotelroom * 1.5
 
 		# N2-2
-		if (mask_section('N2-2').any()): df_es_exc_temp.loc[mask_section('N2-2'), 'en'] = self.n_hospitalbed * 0.93 * 365 * self.coef_usage_r_hospitalbed * 1.5
+		if (mask_section('N2-2').any()):
+			
+			if (self.n_hotel == 0): raise ValueError('Please create hotel first.')
+
+			# Calculate the summation of hotel room and weighted average of coef_usage_r_hotelroom
+			sum_n_hotelroom             = np.nansum([i.n_room for i in self.hotel])
+			mean_coef_usage_r_hotelroom = np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
+			
+			df_es_exc_temp.loc[mask_section('N2-2'), 'en'] = sum_n_hotelroom * 0.93 * 365 * mean_coef_usage_r_hotelroom * 1.5
 
 		# =========================================================================================
 		# 
@@ -1412,7 +1486,7 @@ class Building():
 		# =========================================================================================
 
 		# N7
-		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * df_es_exc.loc[mask_section('N7'), 'Area'].values[0] * self.get_coef_usage_h('N7') * 1.5 
+		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * df_es_exc.loc[mask_section('N7'), 'Area'].values[0] * tool.get_coef_usage_h('N7') * 1.5 
 
 		# N8
 		if (mask_section('N8').any()):
@@ -1505,13 +1579,13 @@ class Building():
 
 			if (section_id in ['H1']):
 
-				coef_usage_r_operation = 0.58 + 0.571 * np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.a for i in self.hotel])
+				coef_usage_r_operation = 0.58 + 0.571 * np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
 
 		# Hospital
 		if (self.n_hospital != 0):
 
 			if (section_id in ['H2']):
 
-				coef_usage_r_operation = 0.25 + 0.94 * np.average([i.coef_usage_r_hospitalbed for i in self.hospital], weights=[i.a for i in self.hospital])
+				coef_usage_r_operation = 0.25 + 0.94 * np.average([i.coef_usage_r_hospitalbed for i in self.hospital], weights=[i.n_hospitalbed for i in self.hospital])
 		
 		return coef_usage_r_operation

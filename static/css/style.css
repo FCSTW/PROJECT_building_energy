@@ -6,6 +6,17 @@ a {
     text-decoration:none;
 }
 
+/* Navigation bar */
+.floating-menu {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 999;
+    width: 62px;
+    background-color: #ccccccd3;
+    box-shadow: 0 0 15px rgba(0,0,0,.1);
+}
+
 /* Banner */
 .banner{
     position: absolute;
