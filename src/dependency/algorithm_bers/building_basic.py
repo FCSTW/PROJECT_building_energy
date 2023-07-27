@@ -231,7 +231,19 @@ class Building():
 		self.est_eui_max     = self.building_ur * (self.est_aeui_max + self.est_leui_max + self.est_eeui_m)
 
 		# Calculate area, EUI for exclusive energy sections
-		self.est_e_n         = self._calc_e_n(self.building_es_exc)
+		if (self.building_es_exc is not None):
+			
+			if (not self.building_es_exc.empty):
+				
+				self.est_e_n = self._calc_e_n()
+
+			else:
+
+				self.est_e_n = 0.0
+		
+		else:
+
+			self.est_e_n = 0.0
 
 		# =========================================================================================
 		# 
@@ -1332,7 +1344,7 @@ class Building():
 
 		return urbanregion
 	
-	def _calc_e_n(self, df_es_exc):
+	def _calc_e_n(self):
 
 		"""
 		This method is used to calculate the energy consumption of exclusive sections.
@@ -1340,18 +1352,18 @@ class Building():
 
 		Arguments:
 
-			df_es_exc (pandas.DataFrame): DataFrame of exclusive sections
-
+			None
+		
 		Output:
 
 			en (float): Energy consumption of exclusive sections
 		"""
 
 		# Define masking function
-		mask_section = lambda x: df_es_exc['Section_ID']==x
+		mask_section = lambda x: self.building_es_exc['Section_ID']==x
 
 		# Deep copy
-		df_es_exc_temp = df_es_exc.copy()
+		df_es_exc_temp = self.building_es_exc.copy()
 
 		# =========================================================================================
 		# 
@@ -1360,67 +1372,67 @@ class Building():
 		# =========================================================================================
 		
 		# N1-1-1
-		if (mask_section('N1-1-1').any()): df_es_exc_temp.loc[mask_section('N1-1-1'), 'en'] = 330 * df_es_exc.loc[mask_section('N1-1-1'), 'Area'].values[0]
+		if (mask_section('N1-1-1').any()): df_es_exc_temp.loc[mask_section('N1-1-1'), 'en'] = 330 * self.building_es_exc.loc[mask_section('N1-1-1'), 'Area'].values[0]
 
 		# N1-1-2
-		if (mask_section('N1-1-2').any()): df_es_exc_temp.loc[mask_section('N1-1-2'), 'en'] = 250 * df_es_exc.loc[mask_section('N1-1-2'), 'Area'].values[0]
+		if (mask_section('N1-1-2').any()): df_es_exc_temp.loc[mask_section('N1-1-2'), 'en'] = 250 * self.building_es_exc.loc[mask_section('N1-1-2'), 'Area'].values[0]
 
 		# N1-2-1
-		if (mask_section('N1-2-1').any()): df_es_exc_temp.loc[mask_section('N1-2-1'), 'en'] = 665 * df_es_exc.loc[mask_section('N1-2-1'), 'Area'].values[0]
+		if (mask_section('N1-2-1').any()): df_es_exc_temp.loc[mask_section('N1-2-1'), 'en'] = 665 * self.building_es_exc.loc[mask_section('N1-2-1'), 'Area'].values[0]
 
 		# N1-2-2
-		if (mask_section('N1-2-2').any()): df_es_exc_temp.loc[mask_section('N1-2-2'), 'en'] = 530 * df_es_exc.loc[mask_section('N1-2-2'), 'Area'].values[0]
+		if (mask_section('N1-2-2').any()): df_es_exc_temp.loc[mask_section('N1-2-2'), 'en'] = 530 * self.building_es_exc.loc[mask_section('N1-2-2'), 'Area'].values[0]
 
 		# N1-3-1
-		if (mask_section('N1-3-1').any()): df_es_exc_temp.loc[mask_section('N1-3-1'), 'en'] = 1318 * df_es_exc.loc[mask_section('N1-3-1'), 'Area'].values[0]
+		if (mask_section('N1-3-1').any()): df_es_exc_temp.loc[mask_section('N1-3-1'), 'en'] = 1318 * self.building_es_exc.loc[mask_section('N1-3-1'), 'Area'].values[0]
 
 		# N1-3-2
-		if (mask_section('N1-3-2').any()): df_es_exc_temp.loc[mask_section('N1-3-2'), 'en'] = 900 * df_es_exc.loc[mask_section('N1-3-2'), 'Area'].values[0]
+		if (mask_section('N1-3-2').any()): df_es_exc_temp.loc[mask_section('N1-3-2'), 'en'] = 900 * self.building_es_exc.loc[mask_section('N1-3-2'), 'Area'].values[0]
 
 		# N1-4-1
-		if (mask_section('N1-4-1').any()): df_es_exc_temp.loc[mask_section('N1-4-1'), 'en'] = 989 * df_es_exc.loc[mask_section('N1-4-1'), 'Area'].values[0]
+		if (mask_section('N1-4-1').any()): df_es_exc_temp.loc[mask_section('N1-4-1'), 'en'] = 989 * self.building_es_exc.loc[mask_section('N1-4-1'), 'Area'].values[0]
 
 		# N1-4-2
-		if (mask_section('N1-4-2').any()): df_es_exc_temp.loc[mask_section('N1-4-2'), 'en'] = 675 * df_es_exc.loc[mask_section('N1-4-2'), 'Area'].values[0]
+		if (mask_section('N1-4-2').any()): df_es_exc_temp.loc[mask_section('N1-4-2'), 'en'] = 675 * self.building_es_exc.loc[mask_section('N1-4-2'), 'Area'].values[0]
 
 		# N1-5
-		if (mask_section('N1-5').any()): df_es_exc_temp.loc[mask_section('N1-5'), 'en'] = 387 * df_es_exc.loc[mask_section('N1-5'), 'Area'].values[0]
+		if (mask_section('N1-5').any()): df_es_exc_temp.loc[mask_section('N1-5'), 'en'] = 387 * self.building_es_exc.loc[mask_section('N1-5'), 'Area'].values[0]
 
 		# N1-6
-		if (mask_section('N1-6').any()): df_es_exc_temp.loc[mask_section('N1-6'), 'en'] = 1500 * df_es_exc.loc[mask_section('N1-6'), 'Area'].values[0]
+		if (mask_section('N1-6').any()): df_es_exc_temp.loc[mask_section('N1-6'), 'en'] = 1500 * self.building_es_exc.loc[mask_section('N1-6'), 'Area'].values[0]
 
 		# N1-7
-		if (mask_section('N1-7').any()): df_es_exc_temp.loc[mask_section('N1-7'), 'en'] = 530 * df_es_exc.loc[mask_section('N1-7'), 'Area'].values[0]
+		if (mask_section('N1-7').any()): df_es_exc_temp.loc[mask_section('N1-7'), 'en'] = 530 * self.building_es_exc.loc[mask_section('N1-7'), 'Area'].values[0]
 
 		# N3-1-1
-		if (mask_section('N3-1-1').any()): df_es_exc_temp.loc[mask_section('N3-1-1'), 'en'] = 26.7 * df_es_exc.loc[mask_section('N3-1-1'), 'Area'].values[0]
+		if (mask_section('N3-1-1').any()): df_es_exc_temp.loc[mask_section('N3-1-1'), 'en'] = 26.7 * self.building_es_exc.loc[mask_section('N3-1-1'), 'Area'].values[0]
 
 		# N3-1-2
-		if (mask_section('N3-1-2').any()): df_es_exc_temp.loc[mask_section('N3-1-2'), 'en'] = 35.3 * df_es_exc.loc[mask_section('N3-1-2'), 'Area'].values[0]
+		if (mask_section('N3-1-2').any()): df_es_exc_temp.loc[mask_section('N3-1-2'), 'en'] = 35.3 * self.building_es_exc.loc[mask_section('N3-1-2'), 'Area'].values[0]
 
 		# N3-2-1
-		if (mask_section('N3-2-1').any()): df_es_exc_temp.loc[mask_section('N3-2-1'), 'en'] = 21.3 * df_es_exc.loc[mask_section('N3-2-1'), 'Area'].values[0]
+		if (mask_section('N3-2-1').any()): df_es_exc_temp.loc[mask_section('N3-2-1'), 'en'] = 21.3 * self.building_es_exc.loc[mask_section('N3-2-1'), 'Area'].values[0]
 
 		# N3-2-2
-		if (mask_section('N3-2-2').any()): df_es_exc_temp.loc[mask_section('N3-2-2'), 'en'] = 29.9 * df_es_exc.loc[mask_section('N3-2-2'), 'Area'].values[0]
+		if (mask_section('N3-2-2').any()): df_es_exc_temp.loc[mask_section('N3-2-2'), 'en'] = 29.9 * self.building_es_exc.loc[mask_section('N3-2-2'), 'Area'].values[0]
 
 		# N3-3-1
-		if (mask_section('N3-3-1').any()): df_es_exc_temp.loc[mask_section('N3-3-1'), 'en'] = 41.9 * df_es_exc.loc[mask_section('N3-3-1'), 'Area'].values[0]
+		if (mask_section('N3-3-1').any()): df_es_exc_temp.loc[mask_section('N3-3-1'), 'en'] = 41.9 * self.building_es_exc.loc[mask_section('N3-3-1'), 'Area'].values[0]
 
 		# N4-1
-		if (mask_section('N4-1').any()): df_es_exc_temp.loc[mask_section('N4-1'), 'en'] = 3.2 * df_es_exc.loc[mask_section('N4-1'), 'Area'].values[0]
+		if (mask_section('N4-1').any()): df_es_exc_temp.loc[mask_section('N4-1'), 'en'] = 3.2 * self.building_es_exc.loc[mask_section('N4-1'), 'Area'].values[0]
 
 		# N4-2
-		if (mask_section('N4-2').any()): df_es_exc_temp.loc[mask_section('N4-2'), 'en'] = 6.1 * df_es_exc.loc[mask_section('N4-2'), 'Area'].values[0]
+		if (mask_section('N4-2').any()): df_es_exc_temp.loc[mask_section('N4-2'), 'en'] = 6.1 * self.building_es_exc.loc[mask_section('N4-2'), 'Area'].values[0]
 
 		# N4-3
-		if (mask_section('N4-3').any()): df_es_exc_temp.loc[mask_section('N4-3'), 'en'] = 80.0 * df_es_exc.loc[mask_section('N4-3'), 'Area'].values[0]
+		if (mask_section('N4-3').any()): df_es_exc_temp.loc[mask_section('N4-3'), 'en'] = 80.0 * self.building_es_exc.loc[mask_section('N4-3'), 'Area'].values[0]
 
 		# N5
-		if (mask_section('N5').any()): df_es_exc_temp.loc[mask_section('N5'), 'en'] = 545 * df_es_exc.loc[mask_section('N5'), 'Area'].values[0]
+		if (mask_section('N5').any()): df_es_exc_temp.loc[mask_section('N5'), 'en'] = 545 * self.building_es_exc.loc[mask_section('N5'), 'Area'].values[0]
 
 		# N6
-		if (mask_section('N6').any()): df_es_exc_temp.loc[mask_section('N6'), 'en'] = 910 * df_es_exc.loc[mask_section('N6'), 'Area'].values[0]
+		if (mask_section('N6').any()): df_es_exc_temp.loc[mask_section('N6'), 'en'] = 910 * self.building_es_exc.loc[mask_section('N6'), 'Area'].values[0]
 
 		# =========================================================================================
 		# 
@@ -1486,7 +1498,7 @@ class Building():
 		# =========================================================================================
 
 		# N7
-		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * df_es_exc.loc[mask_section('N7'), 'Area'].values[0] * tool.get_coef_usage_h('N7') * 1.5 
+		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * self.building_es_exc.loc[mask_section('N7'), 'Area'].values[0] * tool.get_coef_usage_h('N7') * 1.5 
 
 		# N8
 		if (mask_section('N8').any()):

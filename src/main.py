@@ -1,6 +1,7 @@
 import json
 import os
 import pandas as pd
+import src.dependency.algorithm_bers as algorithm_bers
 
 def get_estimation_config(file_name):
 
@@ -130,6 +131,16 @@ def output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui
 		}, outfile, indent=4)
 
 	# Output diagram
+	algorithm_bers.plot.plot_eui_diagram(\
+		est_eui,
+		est_eui_min,
+		est_eui_g,
+		est_eui_m,
+		est_eui_max,
+		est_score,
+		est_score_level,
+		output_path,
+	)
 
 	return True
 
@@ -148,21 +159,19 @@ def main_script(**kwargs):
 		est_result (dict): The estimation result.
 	"""
 
-	import src.dependency.algorithm_bers as algorithm_bers
-
 	file_name = kwargs.get('file', None)
 
 	# Get the building configuration file
 	building_config, es_comm_config, es_exclusive_config, elevator_config, escalator_config = get_estimation_config(file_name)
 	
 	# Create dataframes for es_comm_config and es_exclusive_config
-	df_es_comm                 = {}
-	df_es_comm['Section_Type'] = ['common'] * len(es_comm_config.keys())
-	df_es_comm['Section_ID']   = [es_comm_config[i]['es-id-{i}'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm['Area']         = [es_comm_config[i]['es-attr-{i}-a'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm['AC_Operation'] = [es_comm_config[i]['es-attr-{i}-ac_operation'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm['AC_Type']      = [es_comm_config[i]['es-attr-{i}-ac_type'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm                 = pd.DataFrame(df_es_comm)
+	df_es_comm                      = {}
+	df_es_comm['Section_Type']      = ['common'] * len(es_comm_config.keys())
+	df_es_comm['Section_ID']        = [es_comm_config[i]['es-id-{i}'.format(i=i)] for i in es_comm_config.keys()]
+	df_es_comm['Area']              = [es_comm_config[i]['es-attr-{i}-a'.format(i=i)] for i in es_comm_config.keys()]
+	df_es_comm['AC_Operation']      = [es_comm_config[i]['es-attr-{i}-ac_operation'.format(i=i)] for i in es_comm_config.keys()]
+	df_es_comm['AC_Type']           = [es_comm_config[i]['es-attr-{i}-ac_type'.format(i=i)] for i in es_comm_config.keys()]
+	df_es_comm                      = pd.DataFrame(df_es_comm)
 
 	df_es_exclusive                 = {}
 	df_es_exclusive['Section_Type'] = ['exclusive'] * len(es_exclusive_config.keys())
@@ -180,7 +189,7 @@ def main_script(**kwargs):
 		building_es_comm=df_es_comm,
 		building_es_exc=df_es_exclusive
 	)
-
+	
 	# Create elevator
 	for i_elevator in elevator_config.keys():
 
@@ -277,75 +286,8 @@ def main_script(**kwargs):
 			coef_power_cabinetrack=es_exclusive_config[i_key]['es-exclusive-attr-{i}-datacenter-coef_power_cabinetrack'.format(i=i_key)],
 		)
 
-	# Create performance area
-	building_1.create_performancearea(
-		a=676.53,
-		coef_usage_d=20,
-	)
-
-	building_1.create_performancearea(
-		a=521.62,
-		coef_usage_d=59,
-	)
-
 	est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level = building_1.estimate()
 
-	estimation_result = output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level)
+	output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level)
 
-	return estimation_result
-
-"""
-if (__name__ == '__main__'):
-
-	import dependency.algorithm_bers as algorithm_bers
-	
-	# Read section tables
-	df_es      = pd.read_csv('input/building_config/energysection.test.ver1.csv')
-	df_es_comm = df_es[df_es['Section_Type']=='common']
-	df_es_exc  = df_es[df_es['Section_Type']=='exclusive']
-	
-	building_1 = algorithm_bers.Building(
-		estimation_system='BERSe',
-		building_type='B2',
-		building_es_comm=df_es_comm,
-		building_es_exc=df_es_exc,
-		building_n_stories_above_ground=15,
-		building_n_stories_below_ground=3,
-		building_coordinate=(120.21668276114208, 23.00121344494166),
-		height_watertower=14,
-		ec=95169,
-		ec_other=0,
-	)
-	
-	# Create elevator
-	building_1.create_elevator(
-		elevator_type='freight',
-		elevator_bottom_floor=-2,
-		elevator_top_floor=3,
-		elevator_es=['B3', 'B3', 'B3', 'B3', 'B3'],
-		coef_people_per_elevator=20,
-		coef_load_per_elevator=1350,
-		coef_speed=45,
-	)
-
-	# Create exhibition area
-	building_1.create_exhibitionarea(
-		a=121.1,
-		coef_usage_d=320,
-	)
-
-	# Create performance area
-	building_1.create_performancearea(
-		a=676.53,
-		coef_usage_d=20,
-	)
-
-	building_1.create_performancearea(
-		a=521.62,
-		coef_usage_d=59,
-	)
-
-	est_eui, est_score, est_score_level = building_1.estimate()
-
-	print('Estimated EUI: {eui:.2f} kWh/m2. SCORE={score} ({score_level})'.format(eui=est_eui, score=est_score, score_level=est_score_level))
-"""
+	return

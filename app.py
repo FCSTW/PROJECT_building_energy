@@ -1,6 +1,7 @@
 import flask
 import webbrowser
 import json
+import os
 import datetime
 import src.main
 
@@ -32,7 +33,7 @@ def output_json(obj, file_name):
 
 @app.route("/app/", methods=['GET', 'POST'])
 def page_main():
-
+	
 	# If the user has submitted the form, output the data to a JSON file. Otherwise, render the main page.
 	if (flask.request.method == 'POST'):
 
@@ -41,23 +42,60 @@ def page_main():
 		output_json(flask.request.form.to_dict(flat=False), file_name)
 
 		# Call main() in the src/main.py to start the estimation
-		result = src.main.main_script(file=file_name)
+		src.main.main_script(file=file_name)
 
-		return flask.render_template('result.html')
+		return flask.redirect(flask.url_for('page_result', file='.'.join(file_name.split('.')[1:3])))
 
 	else:
 
 		return flask.render_template('main.html')
 
-@app.route("/app/result/", methods=['GET', 'POST'])
-def page_result():
+@app.route('/app/result/', defaults={'file': None})
+@app.route('/app/result/<file>', methods=['GET', 'POST'])
+def page_result(file):
 
-	return flask.render_template('result.html')
+	if (file is None):
+		# If the file name is not specified, render the main page and list all the output files
+
+		file_list = os.listdir('./output/')
+
+		return flask.render_template('result.html', file_list=file_list, data=None, eui_diagram=None)
+
+	else:
+		# If the file name is specified, render the result page
+
+		# Read the output JSON file
+		with open('output/{file}/estimation_result.json'.format(file=file), 'rb') as infile:  data = json.load(infile)
+
+		data_string = \
+			'估計 EUI: {est_eui} kWh/m2/year <br>' \
+			'估計尺度最低 EUI: {est_eui_min} kWh/m2/year <br>' \
+			'估計尺度綠建築 EUI: {est_eui_g} kWh/m2/year <br>' \
+			'估計尺度中位數 EUI: {est_eui_m} kWh/m2/year <br>' \
+			'估計尺度最高 EUI: {est_eui_max} kWh/m2/year <br>' \
+			'能耗得分: {est_score} 分（{est_score_level}）'
+		
+		data_string = data_string.format(
+			est_eui=round(float(data['est_eui']), 2),
+			est_eui_min=round(float(data['est_eui_min']), 2),
+			est_eui_g=round(float(data['est_eui_g']), 2),
+			est_eui_m=round(float(data['est_eui_m']), 2),
+			est_eui_max=round(float(data['est_eui_max']), 2),
+			est_score=round(float(data['est_score']), 2),
+			est_score_level=data['est_score_level']
+		)
+
+		return flask.render_template('result.html', file=file, data=data_string)
+
+@app.route('/send_file/<file>')
+def send_file_output(file):
+
+	return flask.send_from_directory('./output/{file}/'.format(file=file), 'eui_diagram.png')
 
 if (__name__ == '__main__'):
 	
 	# Open the web browser
-	#webbrowser.open('http://127.0.0.1:5000/app/')
+	webbrowser.open('http://127.0.0.1:5000/app/')
 
 	# Run the app
 	app.debug = True
