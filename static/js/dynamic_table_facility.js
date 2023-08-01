@@ -34,6 +34,13 @@ function addElevator() {
 			</div>
 			<div style="width: 35%; float: left;">
 
+				<label class="form-label-2">電梯類型</label>
+				<select class="form-input-2" name="elevator-attr-${elevatorCount}-elevator_type" aria-label="elevator-attr-${elevatorCount}-elevator_type">
+					<option disabled selected>選擇電梯類型</option>
+					<option value="common">客用電梯</option>
+					<option value="freight">貨用電梯</option>
+				</select>
+				
 				<label class="form-label-2">電梯效率</label>
 				<select class="form-input-2" name="elevator-attr-${elevatorCount}-coef_eff" aria-label="elevator-attr-${elevatorCount}-coef_eff">
 					<option disabled selected>選擇電梯種類</option>

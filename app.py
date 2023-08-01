@@ -95,7 +95,7 @@ def send_file_output(file):
 if (__name__ == '__main__'):
 	
 	# Open the web browser
-	webbrowser.open('http://127.0.0.1:5000/app/')
+	#webbrowser.open('http://127.0.0.1:5000/app/')
 
 	# Run the app
 	app.debug = True
