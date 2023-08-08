@@ -4,6 +4,7 @@
 		<title>FCS - 建物能耗計算工具</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="icon" href="/static/img/fcs_logo.png" type="image/png" sizes="16x16">
 		<link href="/static/css/style.css" rel="stylesheet" type="text/css">
         <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
@@ -29,23 +30,38 @@
 			<!-- Form Section -->
 			<div class="form">
 				
-				<h4>評估結果</h3>
+				<h3>評估結果</h3>
 
 					<div class="content-1">
 						{% if (data != None) %}
 						
 						<div style="display: flex; flex-direction: column;">
 							<div style="height: 3em; font-size: 14pt; font-weight: 700;">建物能耗評估 {{ file }} 結果如下：</div>
+							<div style="height: 3em; font-size: 14pt; color: #0e1ea8d3; font-weight: 800;"><a href="/app/recalculate/{{ file }}">重新評估</a></div>
 							<div style="height: 3em; font-size: 14pt;">{{ data|safe }}</div>
 							<div><img style="width: 50%; margin-top: 150px;" src="{{ url_for('send_file_output', file=file) }}" alt="estimation"></div>
 						</div>
 					
 						{% else %}
 						
-						<!-- List all directories under output folder -->
-							{% for file in file_list %}
-								<div style="height: 3em; font-size: 18pt; color: #0e1ea8d3;">建物能耗評估 - <a href='{{ file }}'>{{ file }}</a></div>
-							{% endfor %}
+							<!-- List all directories under output folder -->
+
+							<div class="result-table">
+								<div class="result-table-header">
+									<div class="result-table-header-item">序號</div>
+									<div class="result-table-header-item">建物名稱</div>
+									<div class="result-table-header-item">評估結果</div>
+								</div>
+
+								{% for i in range(file_list|length) %}
+								<div class="result-table-row">
+									<div class="result-table-row-item">{{ file_list[i] }}</div>
+									<div class="result-table-row-item">{{ name_list[i] }}</div>
+									<div class="result-table-row-item"><a href="/app/result/{{ file_list[i] }}">評估結果</a></div>
+								</div>
+								{% endfor %}
+							
+							</div>
 					
 						{% endif %}
 					</div>

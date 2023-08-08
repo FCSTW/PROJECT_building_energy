@@ -125,6 +125,18 @@ a {
 	box-sizing: border-box;
 	font-size: 1em;
 }
+.form-input-4{
+	display: inline;
+	height: 30px;
+	width: 300px;
+	margin: 4px 0;
+	padding: 12px 20px;
+	margin: 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+	font-size: 1em;
+}
 .form-button-submit{
 	display: inline;
 	height: 3em;
@@ -214,4 +226,38 @@ h5{
 	font-size: 1em;
 	font-weight: 400;
 	margin: 1em 0 1em 0;
+}
+
+/* Result table */
+.result-table{
+	width: 90%;
+	border: solid 1px #ccc;
+	border-radius: 2%;
+}
+.result-table-header{
+	display: flex;
+	width: 100%;
+	background:#000;
+}
+.result-table-row{
+	display: flex;
+	width: 100%;
+}
+.result-table-header-item{
+	flex: 1 1 20%;
+	text-align: center;
+	padding: 8px;
+	font-weight: 800;
+	font-size: 18pt;
+	color: #ffffffd3;
+}
+.result-table-row-item {
+	flex: 1 1 20%;
+	text-align: center;
+	padding: 8px;
+	height: 2em;
+	width: 300px;
+	line-height: 2em;
+	font-size: 18pt;
+	color: #0e1ea8d3;
 }

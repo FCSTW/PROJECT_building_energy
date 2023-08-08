@@ -93,7 +93,6 @@ def plot_eui_diagram(est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, es
 	plt.annotate('Score:%.2f\nLevel:%s'%(est_score, est_score_level), xy=(est_eui, 0.03*1.3), xytext=(est_eui_plot, 0.04*1.3), fontsize=16, horizontalalignment='center', weight='bold', arrowprops=dict(facecolor='grey', shrink=0.05), bbox=dict(facecolor='white', edgecolor='lightgrey', alpha = 0.8, pad = 3.0))
 
 	# Save figure
-
 	plt.savefig(output_path + 'eui_diagram.png', dpi=300, bbox_inches='tight')
 
 	return None

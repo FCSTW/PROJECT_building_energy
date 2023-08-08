@@ -27,8 +27,44 @@
     "building_n_stories_below_ground": [
         "3"
     ],
-    "ec": [
-        "3460000"
+    "ec_input_type": [
+        "bimonthly"
+    ],
+    "ec_bimonthly_1": [
+        "576675"
+    ],
+    "ec_bimonthly_3": [
+        "576675"
+    ],
+    "ec_bimonthly_5": [
+        "576675"
+    ],
+    "ec_bimonthly_7": [
+        "576675"
+    ],
+    "ec_bimonthly_9": [
+        "576675"
+    ],
+    "ec_bimonthly_11": [
+        "576625"
+    ],
+    "ec_bimonthly_13": [
+        "576675"
+    ],
+    "ec_bimonthly_15": [
+        "576675"
+    ],
+    "ec_bimonthly_17": [
+        "576675"
+    ],
+    "ec_bimonthly_19": [
+        "576675"
+    ],
+    "ec_bimonthly_21": [
+        "576675"
+    ],
+    "ec_bimonthly_23": [
+        "576625"
     ],
     "ec_other": [
         "0"

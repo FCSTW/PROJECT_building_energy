@@ -10,6 +10,7 @@ Abbreviation:
 """
 
 from . import building_facility
+from . import constant
 from . import tool
 
 import numpy as np
@@ -166,6 +167,8 @@ class Building():
 
 			est_eui_max (float): The maximum estimated EUI of a building.
 
+			est_cei (float): The estimated CEI of a building.
+
 			est_score (float): The estimated score of a building.
 
 			est_score_level (str): The estimated score level of a building.
@@ -286,10 +289,6 @@ class Building():
 			self._calc_hotwater_total_diningarea() + \
 			self._calc_hotwater_total_sportbathroom()
 		
-		self.est_q_shw       = \
-			self._calc_hotwater_total_swimmingpool() + \
-			self._calc_hotwater_total_spa()
-		
 		self.est_e_h         = \
 			self._calc_es_water_heating_total_comm() + \
 			self._calc_es_water_heating_total_swimmingpool() + \
@@ -313,6 +312,15 @@ class Building():
 
 		# Calculate unbiased eui
 		self.est_eui         = self.est_eui_m + self.est_eui_main - self.est_eui_m_adj
+
+		# =========================================================================================
+		# 
+		# Calculate cei
+		# 
+		# =========================================================================================
+
+		# Calculate cei
+		self.est_cei		 = self.est_eui * constant.coef_ece
 
 		# =========================================================================================
 		# 
@@ -348,6 +356,7 @@ class Building():
 		return \
 			self.est_eui, \
 			self.est_eui_min, self.est_eui_g, self.est_eui_m, self.est_eui_max, \
+			self.est_cei, \
 			self.est_score, self.est_score_level
 
 	def create_elevator(self, **kwargs):
@@ -775,7 +784,7 @@ class Building():
 		
 		else:
 			
-			water_total_hospital = 73.0 * np.nansum([i.n_hospitalbed * i.coef_usage_r_hospitalbed for i in self.hospital])
+			water_total_hospital = 91.3 * np.nansum([i.n_hospitalbed * i.coef_usage_r_hospitalbed for i in self.hospital])
 
 		return water_total_hospital
 
@@ -801,7 +810,7 @@ class Building():
 		
 		else:
 			
-			water_total_sportbathroom = 0.00036 * np.nansum([i.a * i.coef_usage_h for i in self.sportbathroom])
+			water_total_sportbathroom = 0.046 * np.nansum([i.a * i.coef_usage_h for i in self.sportbathroom])
 
 		return water_total_sportbathroom
 
@@ -1230,7 +1239,7 @@ class Building():
 		else:
 			
 			# Weighted average of heating ec
-			es_water_heating_total_swimmingpool = np.average([i.ec_heating for i in self.swimmingpool], weights=[i.v for i in self.swimmingpool]) * self.est_q_shw
+			es_water_heating_total_swimmingpool = np.average([i.ec_heating for i in self.swimmingpool], weights=[i.v for i in self.swimmingpool]) * self._calc_hotwater_total_swimmingpool()
 
 		return es_water_heating_total_swimmingpool
 
@@ -1257,7 +1266,7 @@ class Building():
 		else:
 			
 			# Weighted average of heating ec
-			es_water_heating_total_spa = np.average([i.ec_heating for i in self.spa], weights=[i.v for i in self.spa]) * self.est_q_shw
+			es_water_heating_total_spa = np.average([i.ec_heating for i in self.spa], weights=[i.v for i in self.spa]) * self._calc_hotwater_total_spa()
 
 		return es_water_heating_total_spa
 
@@ -1465,13 +1474,13 @@ class Building():
 		# N2-2
 		if (mask_section('N2-2').any()):
 			
-			if (self.n_hotel == 0): raise ValueError('Please create hotel first.')
+			if (self.n_hospital == 0): raise ValueError('Please create hospital first.')
 
-			# Calculate the summation of hotel room and weighted average of coef_usage_r_hotelroom
-			sum_n_hotelroom             = np.nansum([i.n_room for i in self.hotel])
-			mean_coef_usage_r_hotelroom = np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
+			# Calculate the summation of hospital room and weighted average of coef_usage_r_hospitalbed
+			sum_n_hospitalbed             = np.nansum([i.n_hospitalbed for i in self.hospital])
+			mean_coef_usage_r_hospitalbed = np.average([i.coef_usage_r_hospitalbed for i in self.hospital], weights=[i.n_hospitalbed for i in self.hospital])
 			
-			df_es_exc_temp.loc[mask_section('N2-2'), 'en'] = sum_n_hotelroom * 0.93 * 365 * mean_coef_usage_r_hotelroom * 1.5
+			df_es_exc_temp.loc[mask_section('N2-2'), 'en'] = sum_n_hospitalbed * 0.93 * 365 * mean_coef_usage_r_hospitalbed * 1.5
 
 		# =========================================================================================
 		# 
@@ -1498,7 +1507,7 @@ class Building():
 		# =========================================================================================
 
 		# N7
-		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * self.building_es_exc.loc[mask_section('N7'), 'Area'].values[0] * tool.get_coef_usage_h('N7') * 1.5 
+		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * self.building_es_exc.loc[mask_section('N7'), 'Area'].values[0] * tool.get_coef_usage_h('N7')
 
 		# N8
 		if (mask_section('N8').any()):

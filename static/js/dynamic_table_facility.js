@@ -41,7 +41,7 @@ function addElevator() {
 					<option value="freight">貨用電梯</option>
 				</select>
 				
-				<label class="form-label-2">電梯效率</label>
+ 				<label class="form-label-2">電梯效率</label>
 				<select class="form-input-2" name="elevator-attr-${elevatorCount}-coef_eff" aria-label="elevator-attr-${elevatorCount}-coef_eff">
 					<option disabled selected>選擇電梯種類</option>
 					<option value="1.0">1. 普通電梯（1.0）</option>

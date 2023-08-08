@@ -1,0 +1,93 @@
+{
+    "building_name": [
+        "\u6e2c\u8a66"
+    ],
+    "estimation_system": [
+        "BERSn"
+    ],
+    "building_type": [
+        "A-1"
+    ],
+    "building_address_county": [
+        "\u81fa\u5317\u5e02"
+    ],
+    "building_address_town": [
+        "\u4e2d\u6b63\u5340"
+    ],
+    "building_coordinate_longitude": [
+        ""
+    ],
+    "building_coordinate_latitude": [
+        ""
+    ],
+    "building_n_stories_above_ground": [
+        "10",
+        "0"
+    ],
+    "building_n_stories_below_ground": [
+        "2"
+    ],
+    "ec_heating_comm": [
+        "HE"
+    ],
+    "height_watertower": [
+        "60"
+    ],
+    "ec_input_type": [
+        "bimonthly"
+    ],
+    "ec_bimonthly_1": [
+        "600"
+    ],
+    "ec_bimonthly_3": [
+        "600"
+    ],
+    "ec_bimonthly_5": [
+        "500"
+    ],
+    "ec_bimonthly_7": [
+        "500"
+    ],
+    "ec_bimonthly_9": [
+        "500"
+    ],
+    "ec_bimonthly_11": [
+        "500"
+    ],
+    "ec_bimonthly_13": [
+        "500"
+    ],
+    "ec_bimonthly_15": [
+        "500"
+    ],
+    "ec_bimonthly_17": [
+        "500"
+    ],
+    "ec_bimonthly_19": [
+        "500"
+    ],
+    "ec_bimonthly_21": [
+        "500"
+    ],
+    "ec_bimonthly_23": [
+        "500"
+    ],
+    "ec_other": [
+        "0"
+    ],
+    "est_q_rw": [
+        "0"
+    ],
+    "es-id-0": [
+        "B2"
+    ],
+    "es-attr-0-a": [
+        "500"
+    ],
+    "es-attr-0-ac_operation": [
+        "continue"
+    ],
+    "es-attr-0-ac_type": [
+        "normal"
+    ]
+}

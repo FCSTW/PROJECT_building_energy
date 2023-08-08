@@ -216,7 +216,7 @@ class Hotel():
 		# Initialize the hotel object
 		self.building_type                   = kwargs.get('building_type', None)
 		self.n_room                          = kwargs.get('n_room', 0)
-		self.coef_usage_r_room               = kwargs.get('coef_usage_room', 1)
+		self.coef_usage_r_room               = kwargs.get('coef_usage_r_room', 1)
 
 class Hospital():
 
@@ -225,7 +225,7 @@ class Hospital():
 		# Initialize the hospital object
 		self.building_type                   = kwargs.get('building_type', None)
 		self.n_hospitalbed                   = kwargs.get('n_hospitalbed', 0)
-		self.coef_usage_r_hospitalbed        = kwargs.get('coef_usage_hospitalbed', 1)
+		self.coef_usage_r_hospitalbed        = kwargs.get('coef_usage_r_hospitalbed', 1)
 
 class SportBathroom():
 	
@@ -362,6 +362,10 @@ class DiningArea():
 		self.coef_usage_d                    = kwargs.get('coef_usage_d', self._get_coef_usage_d())
 
 		# =========================================================================================
+		# Convert washdishes_by_hand to boolean
+		if (self.washdishes_by_hand == 'True'): self.washdishes_by_hand = True
+		else: self.washdishes_by_hand = False
+
 		# Get the hot water usage intensity
 		self.coef_usage_i_hotwater           = self._get_coef_usage_i_hotwater()
 

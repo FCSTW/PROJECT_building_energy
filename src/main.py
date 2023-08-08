@@ -1,3 +1,4 @@
+import numpy as np
 import json
 import os
 import pandas as pd
@@ -39,10 +40,26 @@ def get_estimation_config(file_name):
 			except: pass
 	
 	# =========================================================================================
-	# Estimation information / Basic information / nergy consumption
+	# Estimation information / Basic information / Energy consumption
 	# Extract all variables for building basic configuration from the dictionary
-	dict_building_config            = {i: json_data[i][0] for i in list(json_data.keys()) if i in ['building_name', 'estimation_system', 'building_type', 'building_address_county', 'building_address_town', 'building_coordinate_longitude', 'building_coordinate_latitude', 'building_n_stories_above_ground', 'building_n_stories_below_ground', 'ec', 'ec_other', 'est_q_rw', 'ec_heating_comm', 'height_watertower']}
+	dict_building_config            = {i: json_data[i][0] for i in list(json_data.keys()) if i in ['building_name', 'estimation_system', 'building_type', 'building_address_county', 'building_address_town', 'building_coordinate_longitude', 'building_coordinate_latitude', 'building_n_stories_above_ground', 'building_n_stories_below_ground', 'ec_other', 'est_q_rw', 'ec_heating_comm', 'height_watertower']}
 
+	# Add ec data to the dictionary
+	if (json_data['ec_input_type'][0] == 'direct'):
+		# If the input type is direct, add the ec data to the dictionary directly
+
+		dict_building_config['ec'] = json_data['ec_heating_comm'][0]
+
+	elif (json_data['ec_input_type'][0] == 'monthly'):
+		# If the input type is monthly, calculate the summation of all values that the keys start with 'ec_monthly_'
+
+		dict_building_config['ec'] = np.nansum([json_data[i][0] for i in list(json_data.keys()) if i.startswith('ec_monthly_')]) / 2
+
+	elif (json_data['ec_input_type'][0] == 'bimonthly'):
+		# If the input type is bimonthly, calculate the summation of all values that the keys start with 'ec_bimonthly_'
+
+		dict_building_config['ec'] = np.nansum([json_data[i][0] for i in list(json_data.keys()) if i.startswith('ec_bimonthly_')]) / 2
+	
 	# =========================================================================================
 	# Energy section / Exclusive section
 	# Extract all varialbes starts with 'es-' from the dictionary
@@ -88,7 +105,7 @@ def get_estimation_config(file_name):
 		dict_es_comm_config_nested, dict_es_exclusive_config_nested, \
 		dict_elevator_config_nested, dict_escalator_config_nested \
 
-def output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level):
+def output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_cei, est_score, est_score_level):
 
 	"""
 	Ouptut the estimation result to a JSON file and diagram.
@@ -108,6 +125,8 @@ def output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui
 
 		est_eui_max (float): The maximum estimated EUI of a building.
 
+		est_cei (float): The estimated CEI of a building.
+
 		est_score (float): The estimated score of a building.
 
 		est_score_level (str): The estimated score level of a building.
@@ -126,6 +145,7 @@ def output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui
 			'est_eui_g': est_eui_g,
 			'est_eui_m': est_eui_m,
 			'est_eui_max': est_eui_max,
+			'est_cei': est_cei,
 			'est_score': est_score,
 			'est_score_level': est_score_level,
 		}, outfile, indent=4)
@@ -144,7 +164,7 @@ def output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui
 
 	return True
 
-def main_script(**kwargs):
+def estimate(**kwargs):
 
 	"""
 	The main script of the estimation system.
@@ -163,6 +183,9 @@ def main_script(**kwargs):
 
 	# Get the building configuration file
 	building_config, es_comm_config, es_exclusive_config, elevator_config, escalator_config = get_estimation_config(file_name)
+
+	print(es_comm_config)
+	print(es_exclusive_config)
 	
 	# Create dataframes for es_comm_config and es_exclusive_config
 	df_es_comm                      = {}
@@ -286,8 +309,8 @@ def main_script(**kwargs):
 			coef_power_cabinetrack=es_exclusive_config[i_key]['es-exclusive-attr-{i}-datacenter-coef_power_cabinetrack'.format(i=i_key)],
 		)
 
-	est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level = building_1.estimate()
+	est_result = building_1.estimate()
 
-	output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui_m, est_eui_max, est_score, est_score_level)
+	output_estimation_result(file_name, *est_result)
 
 	return

@@ -42,13 +42,23 @@ def page_main():
 		output_json(flask.request.form.to_dict(flat=False), file_name)
 
 		# Call main() in the src/main.py to start the estimation
-		src.main.main_script(file=file_name)
+		src.main.estimate(file=file_name)
 
 		return flask.redirect(flask.url_for('page_result', file='.'.join(file_name.split('.')[1:3])))
 
 	else:
 
 		return flask.render_template('main.html')
+
+@app.route('/app/recalculate/<file>', methods=['GET', 'POST'])
+def page_recalculate(file=None):
+
+	# If the argument is not specified, render the main page
+	if (file is None): return flask.redirect(flask.url_for('page_main'))
+
+	src.main.estimate(file='building_config.{}.json'.format(file))
+
+	return flask.redirect(flask.url_for('page_result', file=file))
 
 @app.route('/app/result/', defaults={'file': None})
 @app.route('/app/result/<file>', methods=['GET', 'POST'])
@@ -58,8 +68,9 @@ def page_result(file):
 		# If the file name is not specified, render the main page and list all the output files
 
 		file_list = os.listdir('./output/')
+		name_list = [file.split('.')[0] for file in file_list]
 
-		return flask.render_template('result.html', file_list=file_list, data=None, eui_diagram=None)
+		return flask.render_template('result.html', file_list=file_list, name_list=name_list, data=None, eui_diagram=None)
 
 	else:
 		# If the file name is specified, render the result page
@@ -68,12 +79,12 @@ def page_result(file):
 		with open('output/{file}/estimation_result.json'.format(file=file), 'rb') as infile:  data = json.load(infile)
 
 		data_string = \
-			'估計 EUI: {est_eui} kWh/m2/year <br>' \
-			'估計尺度最低 EUI: {est_eui_min} kWh/m2/year <br>' \
-			'估計尺度綠建築 EUI: {est_eui_g} kWh/m2/year <br>' \
-			'估計尺度中位數 EUI: {est_eui_m} kWh/m2/year <br>' \
-			'估計尺度最高 EUI: {est_eui_max} kWh/m2/year <br>' \
-			'能耗得分: {est_score} 分（{est_score_level}）'
+			'估計 EUI: {est_eui} kWh/(m<sup>2</sup>year) <br>' \
+			'估計尺度最低 EUI: {est_eui_min} kWh/(m<sup>2</sup>year) <br>' \
+			'估計尺度綠建築 EUI: {est_eui_g} kWh/(m<sup>2</sup>year) <br>' \
+			'估計尺度中位數 EUI: {est_eui_m} kWh/(m<sup>2</sup>year) <br>' \
+			'估計尺度最高 EUI: {est_eui_max} kWh/(m<sup>2</sup>year) <br>' \
+			'能耗得分: {est_score} 分（{est_score_level} 級）'
 		
 		data_string = data_string.format(
 			est_eui=round(float(data['est_eui']), 2),
