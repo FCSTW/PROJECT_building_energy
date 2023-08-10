@@ -1,0 +1,149 @@
+{
+    "building_name": [
+        "\u5bcc\u8389\u5ead\u7de3\u6c11\u5bbf"
+    ],
+    "estimation_system": [
+        "BERSe"
+    ],
+    "building_class": [
+        "general"
+    ],
+    "building_type": [
+        "B-4"
+    ],
+    "building_address_county": [
+        "\u5357\u6295\u7e23"
+    ],
+    "building_address_town": [
+        "\u57d4\u91cc\u93ae"
+    ],
+    "building_coordinate_longitude": [
+        ""
+    ],
+    "building_coordinate_latitude": [
+        ""
+    ],
+    "building_n_stories_above_ground": [
+        "4"
+    ],
+    "building_n_stories_below_ground": [
+        "0"
+    ],
+    "building_floor_offset": [
+        "0"
+    ],
+    "ec_heating_comm": [
+        "Other"
+    ],
+    "height_watertower": [
+        "15"
+    ],
+    "ec_input_type": [
+        "direct"
+    ],
+    "ec": [
+        "6941"
+    ],
+    "ec_other": [
+        "0"
+    ],
+    "est_q_rw": [
+        "0"
+    ],
+    "es-id-0": [
+        "H1"
+    ],
+    "es-attr-0-a": [
+        "28.54"
+    ],
+    "es-attr-0-ac_operation": [
+        "continue"
+    ],
+    "es-attr-0-ac_type": [
+        "normal"
+    ],
+    "es-attr-0-hotel-n_room": [
+        "2"
+    ],
+    "es-attr-0-hotel-coef_usage_r_room": [
+        "0.2"
+    ],
+    "es-id-1": [
+        "H5"
+    ],
+    "es-attr-1-a": [
+        "85.27"
+    ],
+    "es-attr-1-ac_operation": [
+        "continue"
+    ],
+    "es-attr-1-ac_type": [
+        "normal"
+    ],
+    "es-id-2": [
+        "I2"
+    ],
+    "es-attr-2-a": [
+        "30"
+    ],
+    "es-attr-2-ac_operation": [
+        "continue"
+    ],
+    "es-attr-2-ac_type": [
+        "normal"
+    ],
+    "es-attr-2-diningarea-a": [
+        "15"
+    ],
+    "es-attr-2-diningarea-n_meal_per_day": [
+        "2"
+    ],
+    "es-attr-2-diningarea-washdishes_by_hand": [
+        "True"
+    ],
+    "es-attr-2-diningarea-coef_usage_d": [
+        "100"
+    ],
+    "es-id-3": [
+        "H1"
+    ],
+    "es-attr-3-a": [
+        "109.98"
+    ],
+    "es-attr-3-ac_operation": [
+        "continue"
+    ],
+    "es-attr-3-ac_type": [
+        "normal"
+    ],
+    "es-attr-3-hotel-n_room": [
+        "4"
+    ],
+    "es-attr-3-hotel-coef_usage_r_room": [
+        "0.2"
+    ],
+    "es-id-4": [
+        "H1"
+    ],
+    "es-attr-4-a": [
+        "93.38"
+    ],
+    "es-attr-4-ac_operation": [
+        "continue"
+    ],
+    "es-attr-4-ac_type": [
+        "normal"
+    ],
+    "es-attr-4-hotel-n_room": [
+        "4"
+    ],
+    "es-attr-4-hotel-coef_usage_r_room": [
+        "0.2"
+    ],
+    "es-exclusive-id-5": [
+        "N4-2"
+    ],
+    "es-exclusive-attr-5-a": [
+        "86.79"
+    ]
+}

@@ -100,6 +100,16 @@ const es_option = `
 	<option value="P3">P3. 非透天集合住宅之一般共用分區（健身房、閱覽室、兒童遊戲室、KTV、會議室、視聽室、社區辦公室、活動中心等）</option>
 `
 
+const es_residential_option = `
+	<option disabled selected>選擇建物耗能分區</option>
+	<option value="R1">R1. 透天獨棟住宅</option>
+	<option value="R2">R2. 透天連棟住宅</option>
+	<option value="R3">R3. 非透天集合住宅住戶專用分區</option>
+	<option value="P1">P1. 非透天集合住宅大廳分區（大廳空間）</option>
+	<option value="P2">P2. 非透天集合住宅梯廳分區（梯廳與住戶連通走廊）</option>
+	<option value="P3">P3. 非透天集合住宅之一般共用分區（健身房、閱覽室、兒童遊戲室、KTV、會議室、視聽室、社區辦公室、活動中心等）</option>
+`
+
 const es_exclusive_option = `
 	<option disabled selected>選擇建物免評估分區</option>
 	<option value="N1-1-1">N1-1-1. 供一用餐時段餐廳專用廚房區（小吃街、中餐廳或宴會廳廚房）：高級餐廳專用廚房</option>
@@ -113,11 +123,11 @@ const es_exclusive_option = `
 	<option value="N1-5">N1-5. 輕食咖啡餐廳專用廚房區（含吧檯）</option>
 	<option value="N1-6">N1-6. 24 hr 餐廳專用廚房區（速食連鎖餐廳）</option>
 	<option value="N1-7">N1-7. 量販店、超商熱食區專用廚房</option>
-	<option disabled>N1-8. （直接以耗能分區計算）宿舍、企業員工餐廳簡易廚房</option>
-	<option value="N2-1-1">N2-1-1. 旅館專用洗衣空間（洗衣外包之旅館免計算）：觀光或四星級以上旅館客房洗衣</option>
-	<option value="N2-1-2">N2-1-2. 旅館專用洗衣空間（洗衣外包之旅館免計算）：其他旅館客房洗衣</option>
-	<option value="N2-1-3">N2-1-3. 旅館專用洗衣空間（洗衣外包之旅館免計算）：旅館高級餐廳洗衣</option>
-	<option value="N2-2">N2-2. 醫院專用洗衣空間（洗衣外包之醫院免計算）</option>
+	<option disabled>N1-8. （免計）宿舍、企業員工餐廳簡易廚房</option>
+	<option value="N2-1-1">N2-1-1. （由系統直接從旅館類耗能分區帶入計算）旅館專用洗衣空間（洗衣外包之旅館免計算）：觀光或四星級以上旅館客房洗衣</option>
+	<option value="N2-1-2">N2-1-2. （由系統直接從旅館類耗能分區帶入計算）旅館專用洗衣空間（洗衣外包之旅館免計算）：其他旅館客房洗衣</option>
+	<option value="N2-1-3">N2-1-3. （由系統直接從用餐區類耗能分區帶入計算）旅館專用洗衣空間（洗衣外包之旅館免計算）：旅館高級餐廳洗衣</option>
+	<option value="N2-2">N2-2. （由系統直接從醫院類耗能分區帶入計算）醫院專用洗衣空間（洗衣外包之醫院免計算）</option>
 	<option value="N3-1-1">N3-1-1. 住宿類建築室內停車場分區（照明密度 2.0 W/m2，365 日均一運轉）：地下一樓以上樓層停車區</option>
 	<option value="N3-1-2">N3-1-2. 住宿類建築室內停車場分區（照明密度 2.0 W/m2，365 日均一運轉）：地下二樓以下樓層停車區</option>
 	<option value="N3-2-1">N3-2-1. 辦公、文教類室內停車場分區（照明密度 2.5 W/m2，250 上班日）：地下一樓以上樓層停車區</option>
@@ -134,4 +144,33 @@ const es_exclusive_option = `
 	<option disabled>N10. （免計）閒置未使用空間</option>
 	<option disabled>N11. （直接以 NB 類耗能分區計算）不屬於 BERS 建築使用分區</option>
 	<option value="N12">N12. 其他申請者認為不應評估分區</option>
+`
+
+const es_nonresidential_option = `
+	<option disabled selected>選擇建物非住宅分區</option>
+	<option value="office">office</option>
+	<option value="bank">bank</option>
+	<option value="government_agency">government agency</option>
+	<option value="hospital-advanced">hospital-advanced</option>
+	<option value="hospital-intermediate">hospital-intermediate</option>
+	<option value="hospital-general">hospital-general</option>
+	<option value="temple">temple</option>
+	<option value="church">church</option>
+	<option value="theater">theater</option>
+	<option value="cinema">cinema</option>
+	<option value="mall">mall</option>
+	<option value="retail_store">retail store</option>
+	<option value="restaurant">restaurant</option>
+	<option value="town_house">town house</option>
+	<option value="house">house</option>
+	<option value="apartment">apartment</option>
+	<option value="dormitory">dormitory</option>
+	<option value="hotel">hotel</option>
+	<option value="junior_high_school">junior high school</option>
+	<option value="elementary_school">elementary school</option>
+	<option value="senior_high_school">senior high school</option>
+	<option value="university">university</option>
+	<option value="graduate_school">graduate school</option>
+	<option value="library">library</option>
+	<option value="factory">factory</option>
 `

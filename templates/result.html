@@ -37,7 +37,7 @@
 						
 						<div style="display: flex; flex-direction: column;">
 							<div style="height: 3em; font-size: 14pt; font-weight: 700;">建物能耗評估 {{ file }} 結果如下：</div>
-							<div style="height: 3em; font-size: 14pt; color: #0e1ea8d3; font-weight: 800;"><a href="/app/recalculate/{{ file }}">重新評估</a></div>
+							<div style="height: 3em; font-size: 14pt; color: #0e1ea8d3; font-weight: 800;"><a href="/app/recalculate/{{ file }}/{{ estimation_system }}">重新評估</a></div>
 							<div style="height: 3em; font-size: 14pt;">{{ data|safe }}</div>
 							<div><img style="width: 50%; margin-top: 150px;" src="{{ url_for('send_file_output', file=file) }}" alt="estimation"></div>
 						</div>

@@ -312,29 +312,11 @@
     "es-exclusive-id-15": [
         "N2-1-1"
     ],
-    "es-exclusive-attr-15-n_hotelroom": [
-        "10"
-    ],
-    "es-exclusive-attr-15-coef_usage_r_hotelroom": [
-        "0.5"
-    ],
     "es-exclusive-id-16": [
         "N2-2"
     ],
-    "es-exclusive-attr-16-n_hospitalbed": [
-        "20"
-    ],
-    "es-exclusive-attr-16-coef_uage_r_hospitalbed": [
-        "0.6"
-    ],
     "es-exclusive-id-17": [
         "N2-1-3"
-    ],
-    "es-exclusive-attr-17-a": [
-        "100"
-    ],
-    "es-exclusive-attr-17-n_meal_per_day": [
-        "2"
     ],
     "es-exclusive-id-18": [
         "N7"
