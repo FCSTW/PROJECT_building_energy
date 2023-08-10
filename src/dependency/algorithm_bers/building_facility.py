@@ -38,7 +38,20 @@ class Elevator():
 		# =========================================================================================
 
 		# Basic information
-		self.elevator_n_stories_total   = self.elevator_top_floor - self.elevator_bottom_floor + self.elevator_floor_offset
+		if (self.elevator_top_floor > 0) and (self.elevator_bottom_floor < 0):
+
+			self.elevator_n_stories_total = self.elevator_top_floor - self.elevator_bottom_floor - 1
+
+		elif ((self.elevator_top_floor > 0) and (self.elevator_bottom_floor > 0)) or \
+			 ((self.elevator_top_floor < 0) and (self.elevator_bottom_floor < 0)):
+			
+			self.elevator_n_stories_total = self.elevator_top_floor - self.elevator_bottom_floor
+
+		else:
+
+			raise ValueError('The elevator bottom floor ({}) and top floor ({}) are not set correctly.'.format(self.elevator_bottom_floor, self.elevator_top_floor))
+		
+		self.elevator_n_stories_total  += self.elevator_floor_offset
 
 		# Coefficient of usage ratio of elevator
 		self.coef_usage_r               = self._get_coef_usage_r_elevator()

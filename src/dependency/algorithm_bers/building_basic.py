@@ -20,6 +20,24 @@ import os
 
 __path__ = os.path.dirname(__file__).replace('\\', '/').replace('C:/', '/') + '/'
 
+class EnergySection():
+
+	def __init__(self, **kwargs):
+		
+		# Add all key-value pairs to the object attribute
+		for key, value in kwargs.items():
+
+			setattr(self, key, value)
+
+class ExclusiveEnergySection():
+
+	def __init__(self, **kwargs):
+
+		# Add all key-value pairs to the object attribute
+		for key, value in kwargs.items():
+
+			setattr(self, key, value)
+
 class Building():
 
 	"""
@@ -54,8 +72,11 @@ class Building():
 		self.building_n_stories_above_ground = kwargs.get('building_n_stories_above_ground', None)
 		self.building_n_stories_below_ground = kwargs.get('building_n_stories_below_ground', None)
 		self.building_floor_offset           = kwargs.get('building_floor_offset', 0)
-		self.building_es_comm                = kwargs.get('building_es_comm', None)
-		self.building_es_exc                 = kwargs.get('building_es_exc', None)
+
+		self.energy_section                  = kwargs.get('energy_section', [])
+		self.n_energy_section                = len(self.energy_section)
+		self.exclusive_energy_section        = kwargs.get('exclusive_energy_section', [])
+		self.n_exclusive_energy_section      = len(self.exclusive_energy_section)
 
 		# 1-c. Energy consumption
 		self.ec                              = kwargs.get('ec', None)
@@ -118,9 +139,6 @@ class Building():
 		# Building location is not defined
 		if (self.building_coordinate is None) and ((self.building_address_county is None) and (self.building_address_town is None)): raise ValueError('Building location is not defined.')
 
-		# building_es_comm syntax error: AC_Operation contain the string except 'CONTINUE' and 'INTERVAL' (case insensitive)
-		if not (self.building_es_comm['AC_Operation'].str.contains('CONTINUE|INTERVAL', case=False).all()): raise ValueError('building_es_comm syntax error: AC_Operation contain the string except CONTINUE and INTERVAL (case insensitive).')
-
 		# =========================================================================================
 		#
 		# Initialize the building object
@@ -176,14 +194,21 @@ class Building():
 
 		# =========================================================================================
 		#
+		# Check for energy section and exclusive energy section
+		#
+		# =========================================================================================
+
+	
+		# ac_operation syntax error: attribute ac_operation in energy sections contain the string except CONTINUE and INTERVAL (case insensitive)
+		if not all([i.ac_operation.upper() in ['CONTINUE', 'INTERVAL'] for i in self.energy_section]): raise ValueError('ac_operation syntax error: attribute ac_operation in energy sections contain the string except CONTINUE and INTERVAL (case insensitive).')
+
+		# =========================================================================================
+		#
 		# Get SO_r (ratio of operation) for specific energy sections
 		#
 		# =========================================================================================
 
-		df_es_comm_temp                 = self.building_es_comm.copy()
-		df_es_comm_temp['SO_r']         = self.building_es_comm.apply(self._get_coef_usage_r_operation, axis=1)
-		self.building_es_comm           = df_es_comm_temp.copy()
-		del df_es_comm_temp
+		for i_es in self.energy_section: i_es.SO_r = self._get_coef_usage_r_operation(i_es)
 
 		# =========================================================================================
 		# 
@@ -201,49 +226,43 @@ class Building():
 		df_eui_min['Energy_Section_ID'] = df_eui_min['Energy_Section'].str.split('. ').str[0]
 
 		# Extract EUI values from EUI score tables
-		df_es_comm_temp                 = self.building_es_comm.copy()
-		df_es_comm_temp['eeui_m']       = self.building_es_comm.apply(lambda x: df_eui_m.loc[df_eui_m['Energy_Section_ID']==x['Section_ID'], 'EEUI'].values[0], axis=1)
-		df_es_comm_temp['leui_min']     = self.building_es_comm.apply(lambda x: df_eui_min.loc[df_eui_min['Energy_Section_ID']==x['Section_ID'], 'LEUI'].values[0], axis=1)
-		df_es_comm_temp['leui_m']       = self.building_es_comm.apply(lambda x: df_eui_m.loc[df_eui_m['Energy_Section_ID']==x['Section_ID'], 'LEUI'].values[0], axis=1)
-		df_es_comm_temp['leui_max']     = self.building_es_comm.apply(lambda x: df_eui_max.loc[df_eui_max['Energy_Section_ID']==x['Section_ID'], 'LEUI'].values[0], axis=1)
-		df_es_comm_temp['aeui_min']     = self.building_es_comm.apply(lambda x: df_eui_min.loc[df_eui_min['Energy_Section_ID']==x['Section_ID'], 'AEUI_{}_{}'.format(self.building_cz, x['AC_Operation'].upper())].values[0], axis=1)
-		df_es_comm_temp['aeui_m']       = self.building_es_comm.apply(lambda x: df_eui_m.loc[df_eui_m['Energy_Section_ID']==x['Section_ID'], 'AEUI_{}_{}'.format(self.building_cz, x['AC_Operation'].upper())].values[0], axis=1)
-		df_es_comm_temp['aeui_max']     = self.building_es_comm.apply(lambda x: df_eui_max.loc[df_eui_max['Energy_Section_ID']==x['Section_ID'], 'AEUI_{}_{}'.format(self.building_cz, x['AC_Operation'].upper())].values[0], axis=1)
-		df_es_comm_temp['meaneui_m']    = self.building_es_comm.apply(lambda x: df_eui_m.loc[df_eui_m['Energy_Section_ID']==x['Section_ID'], 'EUI_Mean'].values[0], axis=1)
-		df_es_comm_temp['totaleui_m']   = self.building_es_comm.apply(lambda x: df_eui_m.loc[df_eui_m['Energy_Section_ID']==x['Section_ID'], 'TotalEUI'].values[0], axis=1)
-		self.building_es_comm = df_es_comm_temp.copy()
-		del df_es_comm_temp
+		for i_es in self.energy_section:
+
+			i_es.eeui_m     = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'EEUI'].values[0]
+			i_es.leui_min   = df_eui_min.loc[df_eui_min['Energy_Section_ID']==i_es.id, 'LEUI'].values[0]
+			i_es.leui_m     = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'LEUI'].values[0]
+			i_es.leui_max   = df_eui_max.loc[df_eui_max['Energy_Section_ID']==i_es.id, 'LEUI'].values[0]
+			i_es.aeui_min   = df_eui_min.loc[df_eui_min['Energy_Section_ID']==i_es.id, 'AEUI_{}_{}'.format(self.building_cz, i_es.ac_operation.upper())].values[0]
+			i_es.aeui_m     = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'AEUI_{}_{}'.format(self.building_cz, i_es.ac_operation.upper())].values[0]
+			i_es.aeui_max   = df_eui_max.loc[df_eui_max['Energy_Section_ID']==i_es.id, 'AEUI_{}_{}'.format(self.building_cz, i_es.ac_operation.upper())].values[0]
+			i_es.meaneui_m  = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'EUI_Mean'].values[0]
+			i_es.totaleui_m = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'TotalEUI'].values[0]
 
 		# Error handling
 		# aeui_min, aeui_m, or aeui_max include NaN
-		if (self.building_es_comm[['aeui_min', 'aeui_m', 'aeui_max']].isna().values.any()): raise ValueError('aeui_min, aeui_m, or aeui_max include NaN.')
+		if ([i.aeui_min for i in self.energy_section] + [i.aeui_m for i in self.energy_section] + [i.aeui_max for i in self.energy_section]).count(np.nan) > 0: raise ValueError('aeui_min, aeui_m, or aeui_max include NaN.')
 
 		# Calculate area, EUI for common energy sections
-		self.est_a_es_comm   = self.building_es_comm['Area'].sum().round(2)
-		self.est_aeui_min    = self.building_es_comm['Area'].dot(self.building_es_comm['aeui_min']) / self.est_a_es_comm
-		self.est_aeui_m      = self.building_es_comm['Area'].dot(self.building_es_comm['aeui_m']) / self.est_a_es_comm
-		self.est_aeui_max    = self.building_es_comm['Area'].dot(self.building_es_comm['aeui_max']) / self.est_a_es_comm
-		self.est_leui_min    = self.building_es_comm['Area'].dot(self.building_es_comm['leui_min']) / self.est_a_es_comm
-		self.est_leui_m      = self.building_es_comm['Area'].dot(self.building_es_comm['leui_m']) / self.est_a_es_comm
-		self.est_leui_max    = self.building_es_comm['Area'].dot(self.building_es_comm['leui_max']) / self.est_a_es_comm
-		self.est_eeui_m      = self.building_es_comm['Area'].dot(self.building_es_comm['eeui_m']) / self.est_a_es_comm
+		self.est_a_es_comm   = np.nansum([i.a for i in self.energy_section])
+		self.est_aeui_min    = np.nansum([i.a * i.aeui_min for i in self.energy_section]) / self.est_a_es_comm
+		self.est_aeui_m      = np.nansum([i.a * i.aeui_m for i in self.energy_section]) / self.est_a_es_comm
+		self.est_aeui_max    = np.nansum([i.a * i.aeui_max for i in self.energy_section]) / self.est_a_es_comm
+		self.est_leui_min    = np.nansum([i.a * i.leui_min for i in self.energy_section]) / self.est_a_es_comm
+		self.est_leui_m      = np.nansum([i.a * i.leui_m for i in self.energy_section]) / self.est_a_es_comm
+		self.est_leui_max    = np.nansum([i.a * i.leui_max for i in self.energy_section]) / self.est_a_es_comm
+		self.est_eeui_m      = np.nansum([i.a * i.eeui_m for i in self.energy_section]) / self.est_a_es_comm
 
 		self.est_eui_g       = self.building_ur * (0.8 * self.est_aeui_m + 0.8 * self.est_leui_m + self.est_eeui_m)
 		self.est_eui_min     = self.building_ur * (self.est_aeui_min + self.est_leui_min + self.est_eeui_m)
 		self.est_eui_m       = self.building_ur * (self.est_aeui_m + self.est_leui_m + self.est_eeui_m)
 		self.est_eui_max     = self.building_ur * (self.est_aeui_max + self.est_leui_max + self.est_eeui_m)
 
-		# Calculate area, EUI for exclusive energy sections
-		if (self.building_es_exc is not None):
+		# Calculate EUI for exclusive energy sections
+		if (self.n_exclusive_energy_section > 0):
 			
-			if (not self.building_es_exc.empty):
-				
-				self.est_e_n = self._calc_e_n()
+			for i_es in self.exclusive_energy_section: i_es.e_n = self._calc_e_n(i_es)
+			self.est_e_n = np.nansum([i.e_n for i in self.exclusive_energy_section])
 
-			else:
-
-				self.est_e_n = 0.0
-		
 		else:
 
 			self.est_e_n = 0.0
@@ -304,9 +323,9 @@ class Building():
 		# =========================================================================================
 
 		# Calculate adjusted eui_m
-		self.est_aeui_m_adj  = (self.building_es_comm['Area']*self.building_es_comm['SO_r']).dot(self.building_es_comm['aeui_m']) / self.est_a_es_comm
-		self.est_leui_m_adj  = (self.building_es_comm['Area']*self.building_es_comm['SO_r']).dot(self.building_es_comm['leui_m']) / self.est_a_es_comm
-		self.est_eeui_m_adj  = (self.building_es_comm['Area']*self.building_es_comm['SO_r']).dot(self.building_es_comm['eeui_m']) / self.est_a_es_comm
+		self.est_aeui_m_adj = np.nansum([i.a * i.aeui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
+		self.est_leui_m_adj = np.nansum([i.a * i.leui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
+		self.est_eeui_m_adj = np.nansum([i.a * i.eeui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
 		
 		self.est_eui_m_adj   = self.building_ur * (self.est_aeui_m_adj + self.est_leui_m_adj + self.est_eeui_m_adj)
 
@@ -358,6 +377,50 @@ class Building():
 			self.est_eui_min, self.est_eui_g, self.est_eui_m, self.est_eui_max, \
 			self.est_cei, \
 			self.est_score, self.est_score_level
+
+	def create_energy_section(self, **kwargs):
+
+		"""
+		This method is used to create an energy section object and append it to the building object.
+		===========================================================================================
+
+		Arguments:
+
+			None
+
+		Output:
+
+			None
+		"""
+
+		new_energy_section = EnergySection(**kwargs)
+
+		self.energy_section.append(new_energy_section)
+		self.n_energy_section = len(self.energy_section)
+
+		return
+	
+	def create_exclusive_energy_section(self, **kwargs):
+
+		"""
+		This method is used to create an exclusive energy section object and append it to the building object.
+		===========================================================================================
+
+		Arguments:
+
+			None
+
+		Output:
+
+			None
+		"""
+
+		new_exclusive_energy_section = ExclusiveEnergySection(**kwargs)
+
+		self.exclusive_energy_section.append(new_exclusive_energy_section)
+		self.n_exclusive_energy_section = len(self.exclusive_energy_section)
+
+		return
 
 	def create_elevator(self, **kwargs):
 
@@ -732,7 +795,8 @@ class Building():
 			water_total_comm (float): Water consumption of all common energy sections
 		"""
 		
-		water_total_comm = np.nansum([i['Area'] * tool.get_coef_usage_i_water(i['Section_ID']) for _, i in self.building_es_comm.iterrows()])
+		#water_total_comm = np.nansum([i['Area'] * tool.get_coef_usage_i_water(i['Section_ID']) for _, i in self.building_es_comm.iterrows()])
+		water_total_comm = np.nansum([i.a  * tool.get_coef_usage_i_water(i.id) for i in self.energy_section])
 
 		return water_total_comm
 	
@@ -882,6 +946,7 @@ class Building():
 		"""
 
 		# No spa is created
+		"""
 		if (self.building_es_comm[self.building_es_comm['AC_Type'].str.upper()=='WATERCOOLED'].empty):
 			
 			water_total_watercooled = 0
@@ -889,6 +954,15 @@ class Building():
 		else:
 			
 			water_total_watercooled = np.nansum([(0.00036 * tool.get_coef_usage_h_ac(i['Section_ID'], self.building_cz, i['AC_Operation']) + 0.32) * i['Area'] for _, i in self.building_es_comm.iterrows() if str(i['AC_Type']).upper()=='WATERCOOLED'])
+		"""
+		if (len([i for i in self.energy_section if i.ac_type.upper()=='WATERCOOLED']) == 0):
+
+			water_total_watercooled = 0
+		
+		else:
+			
+			water_total_watercooled = np.nansum([(0.00036 * tool.get_coef_usage_h_ac(i.id, self.building_cz, i.ac_operation) + 0.32) * i.a for i in self.energy_section if i.ac_type.upper()=='WATERCOOLED'])
+
 
 		return water_total_watercooled
 	
@@ -1353,7 +1427,7 @@ class Building():
 
 		return urbanregion
 	
-	def _calc_e_n(self):
+	def _calc_e_n(self, es):
 
 		"""
 		This method is used to calculate the energy consumption of exclusive sections.
@@ -1361,18 +1435,12 @@ class Building():
 
 		Arguments:
 
-			None
+			es (algorithm_bers.building_basic.ExclusiveEnergySection): Exclusive energy section
 		
 		Output:
 
 			en (float): Energy consumption of exclusive sections
 		"""
-
-		# Define masking function
-		mask_section = lambda x: self.building_es_exc['Section_ID']==x
-
-		# Deep copy
-		df_es_exc_temp = self.building_es_exc.copy()
 
 		# =========================================================================================
 		# 
@@ -1381,67 +1449,67 @@ class Building():
 		# =========================================================================================
 		
 		# N1-1-1
-		if (mask_section('N1-1-1').any()): df_es_exc_temp.loc[mask_section('N1-1-1'), 'en'] = 330 * self.building_es_exc.loc[mask_section('N1-1-1'), 'Area'].values[0]
+		if (es.id == 'N1-1-1'): en = 330 * es.a
 
 		# N1-1-2
-		if (mask_section('N1-1-2').any()): df_es_exc_temp.loc[mask_section('N1-1-2'), 'en'] = 250 * self.building_es_exc.loc[mask_section('N1-1-2'), 'Area'].values[0]
+		if (es.id == 'N1-1-2'): en = 250 * es.a
 
 		# N1-2-1
-		if (mask_section('N1-2-1').any()): df_es_exc_temp.loc[mask_section('N1-2-1'), 'en'] = 665 * self.building_es_exc.loc[mask_section('N1-2-1'), 'Area'].values[0]
+		if (es.id == 'N1-2-1'): en = 665 * es.a
 
 		# N1-2-2
-		if (mask_section('N1-2-2').any()): df_es_exc_temp.loc[mask_section('N1-2-2'), 'en'] = 530 * self.building_es_exc.loc[mask_section('N1-2-2'), 'Area'].values[0]
+		if (es.id == 'N1-2-2'): en = 530 * es.a
 
 		# N1-3-1
-		if (mask_section('N1-3-1').any()): df_es_exc_temp.loc[mask_section('N1-3-1'), 'en'] = 1318 * self.building_es_exc.loc[mask_section('N1-3-1'), 'Area'].values[0]
+		if (es.id == 'N1-3-1'): en = 1318 * es.a
 
 		# N1-3-2
-		if (mask_section('N1-3-2').any()): df_es_exc_temp.loc[mask_section('N1-3-2'), 'en'] = 900 * self.building_es_exc.loc[mask_section('N1-3-2'), 'Area'].values[0]
+		if (es.id == 'N1-3-2'): en = 900 * es.a
 
 		# N1-4-1
-		if (mask_section('N1-4-1').any()): df_es_exc_temp.loc[mask_section('N1-4-1'), 'en'] = 989 * self.building_es_exc.loc[mask_section('N1-4-1'), 'Area'].values[0]
+		if (es.id == 'N1-4-1'): en = 989 * es.a
 
 		# N1-4-2
-		if (mask_section('N1-4-2').any()): df_es_exc_temp.loc[mask_section('N1-4-2'), 'en'] = 675 * self.building_es_exc.loc[mask_section('N1-4-2'), 'Area'].values[0]
+		if (es.id == 'N1-4-2'): en = 675 * es.a
 
 		# N1-5
-		if (mask_section('N1-5').any()): df_es_exc_temp.loc[mask_section('N1-5'), 'en'] = 387 * self.building_es_exc.loc[mask_section('N1-5'), 'Area'].values[0]
+		if (es.id == 'N1-5'): en = 387 * es.a
 
 		# N1-6
-		if (mask_section('N1-6').any()): df_es_exc_temp.loc[mask_section('N1-6'), 'en'] = 1500 * self.building_es_exc.loc[mask_section('N1-6'), 'Area'].values[0]
+		if (es.id == 'N1-6'): en = 1500 * es.a
 
 		# N1-7
-		if (mask_section('N1-7').any()): df_es_exc_temp.loc[mask_section('N1-7'), 'en'] = 530 * self.building_es_exc.loc[mask_section('N1-7'), 'Area'].values[0]
+		if (es.id == 'N1-7'): en = 530 * es.a
 
 		# N3-1-1
-		if (mask_section('N3-1-1').any()): df_es_exc_temp.loc[mask_section('N3-1-1'), 'en'] = 26.7 * self.building_es_exc.loc[mask_section('N3-1-1'), 'Area'].values[0]
+		if (es.id == 'N3-1-1'): en = 26.7 * es.a
 
 		# N3-1-2
-		if (mask_section('N3-1-2').any()): df_es_exc_temp.loc[mask_section('N3-1-2'), 'en'] = 35.3 * self.building_es_exc.loc[mask_section('N3-1-2'), 'Area'].values[0]
+		if (es.id == 'N3-1-2'): en = 35.3 * es.a
 
 		# N3-2-1
-		if (mask_section('N3-2-1').any()): df_es_exc_temp.loc[mask_section('N3-2-1'), 'en'] = 21.3 * self.building_es_exc.loc[mask_section('N3-2-1'), 'Area'].values[0]
+		if (es.id == 'N3-2-1'): en = 21.3 * es.a
 
 		# N3-2-2
-		if (mask_section('N3-2-2').any()): df_es_exc_temp.loc[mask_section('N3-2-2'), 'en'] = 29.9 * self.building_es_exc.loc[mask_section('N3-2-2'), 'Area'].values[0]
+		if (es.id == 'N3-2-1'): en = 29.9 * es.a
 
 		# N3-3-1
-		if (mask_section('N3-3-1').any()): df_es_exc_temp.loc[mask_section('N3-3-1'), 'en'] = 41.9 * self.building_es_exc.loc[mask_section('N3-3-1'), 'Area'].values[0]
+		if (es.id == 'N3-3-1'): en = 41.9 * es.a
 
 		# N4-1
-		if (mask_section('N4-1').any()): df_es_exc_temp.loc[mask_section('N4-1'), 'en'] = 3.2 * self.building_es_exc.loc[mask_section('N4-1'), 'Area'].values[0]
+		if (es.id == 'N4-1'): en = 3.2 * es.a
 
 		# N4-2
-		if (mask_section('N4-2').any()): df_es_exc_temp.loc[mask_section('N4-2'), 'en'] = 6.1 * self.building_es_exc.loc[mask_section('N4-2'), 'Area'].values[0]
+		if (es.id == 'N4-2'): en = 6.1 * es.a
 
 		# N4-3
-		if (mask_section('N4-3').any()): df_es_exc_temp.loc[mask_section('N4-3'), 'en'] = 80.0 * self.building_es_exc.loc[mask_section('N4-3'), 'Area'].values[0]
+		if (es.id == 'N4-3'): en = 80.0 * es.a
 
 		# N5
-		if (mask_section('N5').any()): df_es_exc_temp.loc[mask_section('N5'), 'en'] = 545 * self.building_es_exc.loc[mask_section('N5'), 'Area'].values[0]
+		if (es.id == 'N5'): en = 545 * es.a
 
 		# N6
-		if (mask_section('N6').any()): df_es_exc_temp.loc[mask_section('N6'), 'en'] = 910 * self.building_es_exc.loc[mask_section('N6'), 'Area'].values[0]
+		if (es.id == 'N6'): en = 910 * es.a
 
 		# =========================================================================================
 		# 
@@ -1450,7 +1518,7 @@ class Building():
 		# =========================================================================================
 
 		# N2-1-1
-		if (mask_section('N2-1-1').any()):
+		if (es.id == 'N2-1-1'):
 
 			if (self.n_hotel == 0): raise ValueError('Please create hotel first.')
 
@@ -1458,10 +1526,10 @@ class Building():
 			sum_n_hotelroom             = np.nansum([i.n_room for i in self.hotel])
 			mean_coef_usage_r_hotelroom = np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
 			
-			df_es_exc_temp.loc[mask_section('N2-1-1'), 'en'] = sum_n_hotelroom * 5.85 * 365 * mean_coef_usage_r_hotelroom * 2.0
+			en = sum_n_hotelroom * 5.85 * 365 * mean_coef_usage_r_hotelroom * 2.0
 		
 		# N2-1-2
-		if (mask_section('N2-1-2').any()):
+		if (es.id == 'N2-1-2'):
 			
 			if (self.n_hotel == 0): raise ValueError('Please create hotel first.')
 
@@ -1469,10 +1537,10 @@ class Building():
 			sum_n_hotelroom             = np.nansum([i.n_room for i in self.hotel])
 			mean_coef_usage_r_hotelroom = np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
 			
-			df_es_exc_temp.loc[mask_section('N2-1-2'), 'en'] = sum_n_hotelroom * 3.85 * 365 * mean_coef_usage_r_hotelroom * 1.5
+			en = sum_n_hotelroom * 3.85 * 365 * mean_coef_usage_r_hotelroom * 1.5
 
 		# N2-2
-		if (mask_section('N2-2').any()):
+		if (es.id == 'N2-2'):
 			
 			if (self.n_hospital == 0): raise ValueError('Please create hospital first.')
 
@@ -1480,7 +1548,7 @@ class Building():
 			sum_n_hospitalbed             = np.nansum([i.n_hospitalbed for i in self.hospital])
 			mean_coef_usage_r_hospitalbed = np.average([i.coef_usage_r_hospitalbed for i in self.hospital], weights=[i.n_hospitalbed for i in self.hospital])
 			
-			df_es_exc_temp.loc[mask_section('N2-2'), 'en'] = sum_n_hospitalbed * 0.93 * 365 * mean_coef_usage_r_hospitalbed * 1.5
+			en = sum_n_hospitalbed * 0.93 * 365 * mean_coef_usage_r_hospitalbed * 1.5
 
 		# =========================================================================================
 		# 
@@ -1489,7 +1557,7 @@ class Building():
 		# =========================================================================================
 
 		# N2-1-3
-		if (mask_section('N2-1-3').any()):
+		if (es.id == 'N2-1-3'):
 
 			if (self.n_diningarea == 0): raise ValueError('Please create diningarea first.')
 			
@@ -1498,7 +1566,7 @@ class Building():
 			mean_n_meal_per_day = np.average([i.n_meal_per_day for i in self.diningarea], weights=[i.a for i in self.diningarea])
 
 			# Calculate es
-			df_es_exc_temp.loc[mask_section('N2-1-3'), 'en'] = sum_a_dining * 0.09 * mean_n_meal_per_day * 365 * 0.7 * 1.5
+			en = sum_a_dining * 0.09 * mean_n_meal_per_day * 365 * 0.7 * 1.5
 
 		# =========================================================================================
 		# 
@@ -1507,15 +1575,15 @@ class Building():
 		# =========================================================================================
 
 		# N7
-		if (mask_section('N7').any()): df_es_exc_temp.loc[mask_section('N7'), 'en'] = 0.124 * self.building_es_exc.loc[mask_section('N7'), 'Area'].values[0] * tool.get_coef_usage_h('N7')
+		if (es.id == 'N7'): en = 0.124 * es.a * es.coef_usage_h
 
 		# N8
-		if (mask_section('N8').any()):
+		if (es.id == 'N8'):
 			
 			if (self.n_datacenter == 0): raise ValueError('Please create data center first.')
 			
 			# Calculate es
-			df_es_exc_temp.loc[mask_section('N8'), 'en'] = np.nansum([i.a * (2630 * i.coef_power_cabinetrack + 51) for i in self.datacenter])
+			en = np.nansum([i.a * (2630 * i.coef_power_cabinetrack + 51) for i in self.datacenter])
 
 		# =========================================================================================
 		# 
@@ -1524,12 +1592,10 @@ class Building():
 		# =========================================================================================
 
 		# N9, N10, N12
-		if (mask_section('N9').any()): df_es_exc_temp.loc[mask_section('N9'), 'en'] = 0
-		if (mask_section('N10').any()): df_es_exc_temp.loc[mask_section('N10'), 'en'] = 0
-		if (mask_section('N12').any()): df_es_exc_temp.loc[mask_section('N12'), 'en'] = 0
+		if (es.id in ['N9', 'N10', 'N12']): en = 0.0
 
 		# N11: raise error. Please use the other es
-		if (mask_section('N11').any()): raise ValueError('Please avoid using N11. Use the other es instead.')
+		if (es.id == 'N11'): raise ValueError('Please avoid using N11. Use the other es instead.')
 
 		# =========================================================================================
 		#
@@ -1537,16 +1603,9 @@ class Building():
 		#
 		# =========================================================================================
 
-		# Rename variables
-		df_es_exc = df_es_exc_temp.copy()
-		del df_es_exc_temp
-
-		# Calculate en
-		en = df_es_exc['en'].sum()
-
 		return en
 	
-	def _get_coef_usage_r_operation(self, row):
+	def _get_coef_usage_r_operation(self, es):
 
 		"""
 		This method is used to get the coefficient of actual operation for usage ratio.
@@ -1554,17 +1613,12 @@ class Building():
 
 		Arguments:
 
-			row (pandas.Series): Row of the DataFrame
+			es (algorithm_bers.building_basic.EnergySection): Energy section object
 
 		Output:
 
 			coef_usage_r_operation (float): Coefficient of operation for usage ratio
 		"""
-
-		# Get variables
-		section_id   = row['Section_ID']
-
-		# Get coefficient of operation for usage ratio based on section id
 
 		# Default value
 		coef_usage_r_operation = 1.0
@@ -1572,40 +1626,40 @@ class Building():
 		# Exhibition area
 		if (self.n_exhibitionarea != 0):
 
-			if (section_id in ['D1', 'D2', 'D3', 'E1']):
+			if (es.id in ['D1', 'D2', 'D3', 'E1']):
 
 				coef_usage_r_operation = 0.52 + 0.45 * np.nansum([i.a * i.coef_usage_d for i in self.exhibitionarea]) / np.nansum([i.a * 273 for i in self.exhibitionarea])
 
 		# Performance area
 		if (self.n_performancearea != 0):
 
-			if (section_id in ['F1']):
+			if (es.id in ['F1']):
 				
 				coef_usage_r_operation = 0.17 + 0.83 * np.average([i.coef_usage_d / tool.get_coef_usage_d('F1') for i in self.performancearea], weights=[i.a for i in self.performancearea])
 
-			elif (section_id in ['F2']):
+			elif (es.id in ['F2']):
 
 				coef_usage_r_operation = 0.21 + 0.77 * np.average([i.coef_usage_d / tool.get_coef_usage_d('F2') for i in self.performancearea], weights=[i.a for i in self.performancearea])
 
-			elif (section_id in ['G1']):
+			elif (es.id in ['G1']):
 
 				coef_usage_r_operation = 0.39 + 0.60 * np.average([i.coef_usage_d / tool.get_coef_usage_d('G1') for i in self.performancearea], weights=[i.a for i in self.performancearea])
 
-			elif (section_id in ['G2']):
+			elif (es.id in ['G2']):
 
 				coef_usage_r_operation = 0.31 + 0.67 * np.average([i.coef_usage_d / tool.get_coef_usage_d('G2') for i in self.performancearea], weights=[i.a for i in self.performancearea])
 		
 		# Hotel
 		if (self.n_hotel != 0):
 
-			if (section_id in ['H1']):
+			if (es.id in ['H1']):
 
 				coef_usage_r_operation = 0.58 + 0.571 * np.average([i.coef_usage_r_room for i in self.hotel], weights=[i.n_room for i in self.hotel])
 
 		# Hospital
 		if (self.n_hospital != 0):
 
-			if (section_id in ['H2']):
+			if (es.id in ['H2']):
 
 				coef_usage_r_operation = 0.25 + 0.94 * np.average([i.coef_usage_r_hospitalbed for i in self.hospital], weights=[i.n_hospitalbed for i in self.hospital])
 		
