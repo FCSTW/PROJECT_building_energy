@@ -164,7 +164,7 @@ def output_estimation_result(file_name, est_eui, est_eui_min, est_eui_g, est_eui
 
 	return True
 
-def estimate(**kwargs):
+def run_estimate(**kwargs):
 
 	"""
 	The main script of the estimation system.
@@ -184,34 +184,28 @@ def estimate(**kwargs):
 	# Get the building configuration file
 	building_config, es_comm_config, es_exclusive_config, elevator_config, escalator_config = get_estimation_config(file_name)
 
-	print(es_comm_config)
-	print(es_exclusive_config)
-	
-	# Create dataframes for es_comm_config and es_exclusive_config
-	df_es_comm                      = {}
-	df_es_comm['Section_Type']      = ['common'] * len(es_comm_config.keys())
-	df_es_comm['Section_ID']        = [es_comm_config[i]['es-id-{i}'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm['Area']              = [es_comm_config[i]['es-attr-{i}-a'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm['AC_Operation']      = [es_comm_config[i]['es-attr-{i}-ac_operation'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm['AC_Type']           = [es_comm_config[i]['es-attr-{i}-ac_type'.format(i=i)] for i in es_comm_config.keys()]
-	df_es_comm                      = pd.DataFrame(df_es_comm)
-
-	df_es_exclusive                 = {}
-	df_es_exclusive['Section_Type'] = ['exclusive'] * len(es_exclusive_config.keys())
-	df_es_exclusive['Section_ID']   = [es_exclusive_config[i]['es-exclusive-id-{i}'.format(i=i)] for i in es_exclusive_config.keys()]
-	df_es_exclusive['Area']         = [es_exclusive_config[i]['es-exclusive-attr-{i}-a'.format(i=i)] for i in es_exclusive_config.keys()]
-	df_es_exclusive['AC_Operation'] = [''] * len(es_exclusive_config.keys())
-	df_es_exclusive['AC_Type']      = [''] * len(es_exclusive_config.keys())
-	df_es_exclusive                 = pd.DataFrame(df_es_exclusive)
-
 	# =========================================================================================
 
 	# Create a building object
 	building_1 = algorithm_bers.Building(
 		**building_config,
-		building_es_comm=df_es_comm,
-		building_es_exc=df_es_exclusive
 	)
+
+	# Create energy section
+	for i_es in es_comm_config.keys():
+
+		building_1.create_energy_section(
+			id=es_comm_config[i_es]['es-id-' + str(i_es)],
+			**{'-'.join(k.split('-')[3:]): v for k, v in es_comm_config[i_es].items() if k.startswith('es-attr-')},
+		)
+
+	# Create exclusive energy section
+	for i_es in es_exclusive_config.keys():
+
+		building_1.create_exclusive_energy_section(
+			id=es_exclusive_config[i_es]['es-exclusive-id-' + str(i_es)],
+			**{'-'.join(k.split('-')[4:]): v for k, v in es_exclusive_config[i_es].items() if k.startswith('es-exclusive-attr-')},
+		)
 	
 	# Create elevator
 	for i_elevator in elevator_config.keys():

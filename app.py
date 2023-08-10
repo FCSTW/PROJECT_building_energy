@@ -42,7 +42,7 @@ def page_main():
 		output_json(flask.request.form.to_dict(flat=False), file_name)
 
 		# Call main() in the src/main.py to start the estimation
-		src.main.estimate(file=file_name)
+		src.main.run_estimate(file=file_name)
 
 		return flask.redirect(flask.url_for('page_result', file='.'.join(file_name.split('.')[1:3])))
 
@@ -56,7 +56,7 @@ def page_recalculate(file=None):
 	# If the argument is not specified, render the main page
 	if (file is None): return flask.redirect(flask.url_for('page_main'))
 
-	src.main.estimate(file='building_config.{}.json'.format(file))
+	src.main.run_estimate(file='building_config.{}.json'.format(file))
 
 	return flask.redirect(flask.url_for('page_result', file=file))
 

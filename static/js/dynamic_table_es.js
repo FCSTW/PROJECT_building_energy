@@ -388,56 +388,30 @@ function esExclusiveIdChange(sectionIndex) {
 			`
 			break;
 		case "N6":
-				// Collect area (freezing)
-				form.innerHTML = `
-					<div>
-						<label class="form-label-2">冷凍室面積</label>
-						<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
-					</div>
-				`
-				break;
+			// Collect area (freezing)
+			form.innerHTML = `
+				<div>
+					<label class="form-label-2">冷凍室面積</label>
+					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
+				</div>
+			`
+			break;
 		case "N2-1-1": case "N2-1-2":
 			// Collect number of hotel rooms and annual ratio of room usage
 			form.innerHTML = `
-				<div>
-					<label class="form-label-2">洗衣負責客房數量</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-n_hotelroom" placeholder="客房數量" required>
-				</div>
-				<div>
-					<label class="form-label-2">年住房率</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-coef_usage_r_hotelroom" placeholder="介於 0 至 1" min="0" max="1" step="0.01" required>
-				</div>
+				<div class="form-label-2">由系統直接從旅館類耗能分區帶入計算</div>
 			`
 			break;
 		case "N2-2":
 			// Collect number of hospital beds and annual bed usage
 			form.innerHTML = `
-				<div>
-					<label class="form-label-2">洗衣負責病床數量</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-n_hospitalbed" placeholder="病床數量" required>
-				</div>
-				<div>
-					<label class="form-label-2">年住房率</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-coef_uage_r_hospitalbed" placeholder="介於 0 至 1" min="0" max="1" step="0.01" required>
-				</div>
+				<div class="form-label-2">由系統直接從醫院類耗能分區帶入計算</div>
 			`
 			break;
 		case "N2-1-3":
 			// Collect area of dining area and number of meals per day
 			form.innerHTML = `
-				<div>
-					<label class="form-label-2">洗衣（餐具廚具等）負責用餐區面積</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
-				</div>
-				<div>
-					<label class="form-label-2">每天提供餐數</label>
-					<select class="form-input-3" name="es-exclusive-attr-${sectionIndex}-n_meal_per_day" aria-label="es-exclusive-attr-${sectionIndex}-n_meal_per_day">
-						<option disabled selected>選擇每天提供餐數</option>
-						<option value="1">每日一餐</option>
-						<option value="2">每日兩餐</option>
-						<option value="3">每日三餐</option>
-					</select>
-				</div>
+				<div class="form-label-2">由系統直接從用餐區類耗能分區帶入計算</div>
 			`
 			break;
 		case "N7":
