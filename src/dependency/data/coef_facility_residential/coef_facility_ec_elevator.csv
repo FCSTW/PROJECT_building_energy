@@ -1,0 +1,6 @@
+﻿Building_Type,Stories_min,Stories_max,n_People,n_Load,Speed,FLE,EEc
+house,-999,999,6,450,45,1.18,2067
+apartment,-999,7,12,800,60,2.79,4886
+apartment,8,16,15,1000,105,6.1,10685
+apartment,17,30,15,1000,120,6.98,12230
+apartment,31,999,15,1000,150,8.72,15272

@@ -181,7 +181,7 @@ a {
 	background-color: #ff8686;
 	color: white;
 }
-.form-button-dynamic-add:hover{
+.form-button-dynamic-clear:hover{
 	color: #000000;
 }
 .form-button-dynamic-delete{
@@ -258,6 +258,6 @@ h5{
 	height: 2em;
 	width: 300px;
 	line-height: 2em;
-	font-size: 18pt;
+	font-size: 14pt;
 	color: #0e1ea8d3;
 }

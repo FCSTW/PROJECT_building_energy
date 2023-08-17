@@ -1,0 +1,26 @@
+﻿Section_Type,Qdp,Mean_Usage_Hour,Coef_People_Density,Coef_Effective_Area
+office,110,8,0.2,56
+bank,110,8,0.2,56
+government agency,110,8,0.2,56
+hospital-advanced,1000,10,,46.5
+hospital-intermediate,500,10,,46.5
+hospital-general,250,10,,46.5
+temple,10,2,,
+church,10,2,,
+theater,30,5,,54
+cinema,10,3,,
+mall,3,8,1,57.5
+retail store,100,7,0.16,
+restaurant,30,5,1,51.5
+town house,180,9,0.16,43.5
+house,250,9,0.16,47.5
+apartment,205,9,0.16,
+dormitory,120,8,0.2,
+hotel,275,10,0.17,
+junior high school,45,5.5,0.195,59
+elementary school,45,5.5,0.195,59
+senior high school,81,6,0.1,
+university,81,6,0.1,
+graduate school,150,8,0.06,
+library,25,6,0.4,
+factory,100,8,0.2,

@@ -1,0 +1,188 @@
+{
+    "estimation_system": [
+        "R-BERS"
+    ],
+    "building_name": [
+        "\u65b0\u5317\u5e02\u793e\u6703\u4f4f\u5b85\u6e2c\u8a66"
+    ],
+    "building_class": [
+        "residential"
+    ],
+    "building_type": [
+        "apartment"
+    ],
+    "building_address_county": [
+        "\u65b0\u5317\u5e02"
+    ],
+    "building_address_town": [
+        "\u677f\u6a4b\u5340"
+    ],
+    "building_coordinate_longitude": [
+        ""
+    ],
+    "building_coordinate_latitude": [
+        ""
+    ],
+    "building_n_stories_above_ground": [
+        "9"
+    ],
+    "building_n_stories_below_ground": [
+        "3"
+    ],
+    "n_suite": [
+        "48"
+    ],
+    "n_household_big": [
+        "40"
+    ],
+    "coef_eff_ac_residential": [
+        "0.61"
+    ],
+    "coef_eff_ac_nonresidential": [
+        "0.61"
+    ],
+    "coef_eff_envelope": [
+        "0.3"
+    ],
+    "coef_eff_lighting_residential": [
+        "0.4"
+    ],
+    "coef_eff_lighting_nonresidential": [
+        "0.4"
+    ],
+    "watertower-attr-0-water_pumping_capacity": [
+        "200"
+    ],
+    "watertower-attr-0-standard_hydraulic_head_static": [
+        "52.6"
+    ],
+    "watertower-attr-0-standard_hydraulic_head_friction": [
+        "5.26"
+    ],
+    "watertower-attr-0-hydraulic_head_total": [
+        "65"
+    ],
+    "est_q_rw": [
+        "0"
+    ],
+    "es-id-0": [
+        "R3"
+    ],
+    "es-attr-0-a": [
+        "4344"
+    ],
+    "es-id-1": [
+        "P1"
+    ],
+    "es-attr-1-a": [
+        "146.6"
+    ],
+    "es-id-2": [
+        "P2"
+    ],
+    "es-attr-2-a": [
+        "953.3"
+    ],
+    "es-id-3": [
+        "P3"
+    ],
+    "es-attr-3-a": [
+        "246.1"
+    ],
+    "elevator-attr-0-elevator_bottom_floor": [
+        "-3"
+    ],
+    "elevator-attr-0-elevator_top_floor": [
+        "9"
+    ],
+    "elevator-attr-0-elevator_floor_offset": [
+        "0"
+    ],
+    "elevator-attr-0-elevator_type": [
+        "common"
+    ],
+    "elevator-attr-0-coef_eff": [
+        "0.5"
+    ],
+    "elevator-attr-0-coef_people_per_elevator": [
+        "15"
+    ],
+    "elevator-attr-0-coef_load_per_elevator": [
+        "1000"
+    ],
+    "elevator-attr-0-coef_speed": [
+        "105"
+    ],
+    "elevator-attr-1-elevator_bottom_floor": [
+        "-3"
+    ],
+    "elevator-attr-1-elevator_top_floor": [
+        "9"
+    ],
+    "elevator-attr-1-elevator_floor_offset": [
+        "0"
+    ],
+    "elevator-attr-1-elevator_type": [
+        "common"
+    ],
+    "elevator-attr-1-coef_eff": [
+        "0.5"
+    ],
+    "elevator-attr-1-coef_people_per_elevator": [
+        "15"
+    ],
+    "elevator-attr-1-coef_load_per_elevator": [
+        "1000"
+    ],
+    "elevator-attr-1-coef_speed": [
+        "105"
+    ],
+    "heater-attr-0-type": [
+        "1"
+    ],
+    "heater-attr-0-energy_rating": [
+        "2"
+    ],
+    "heater-attr-0-quantity": [
+        "88"
+    ],
+    "heater-attr-0-coef_pipe_thermal_conductivity": [
+        "4.5"
+    ],
+    "heater-attr-1-type": [
+        "3"
+    ],
+    "heater-attr-1-energy_rating": [
+        "1"
+    ],
+    "heater-attr-1-quantity": [
+        "88"
+    ],
+    "heater-attr-1-coef_pipe_thermal_conductivity": [
+        "4.5"
+    ],
+    "parkinggarage-attr-0-a": [
+        "894"
+    ],
+    "parkinggarage-attr-0-floor": [
+        "-1"
+    ],
+    "parkinggarage-attr-0-energy_rating": [
+        "False"
+    ],
+    "parkinggarage-attr-0-co2_variable_frequency": [
+        "True"
+    ],
+    "parkinggarage-attr-1-a": [
+        "1878"
+    ],
+    "parkinggarage-attr-1-floor": [
+        "-2"
+    ],
+    "parkinggarage-attr-1-energy_rating": [
+        "False"
+    ],
+    "parkinggarage-attr-1-co2_variable_frequency": [
+        "True"
+    ]
+}

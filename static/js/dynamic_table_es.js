@@ -2,6 +2,11 @@
 
 let energySectionCount = 0;
 let energySectionExclusiveCount = 0;
+let energySectionNonResidentialCount = 0;
+
+
+// ====================================================================================================
+// ENERGY SECTION
 
 // ====================================================================================================
 //
@@ -9,7 +14,7 @@ let energySectionExclusiveCount = 0;
 //
 // ====================================================================================================
 
-function addEnergySection() {
+function addEnergySection(estimationSystem) {
 
     // Select the div
 	const Div = document.getElementById('energy-sections');
@@ -17,23 +22,49 @@ function addEnergySection() {
 	// Create a new row
 	const newRow = document.createElement('div');
 	newRow.id = `energy-section-${energySectionCount}`;
-	newRow.innerHTML = `
-		<div style="width: 100%; margin: 1em 0 1em 0;">
-			<div style="width: 35%; float: left;">
-				<label class="form-label-2">耗能分區</label>
-				<select class="form-input-2" name="es-id-${energySectionCount}" onchange="esIdChange(${energySectionCount})" aria-label="es-id-${energySectionCount}">
-		` + es_option + `
-				</select>
+
+	// Set html content based on estimation system
+	if (estimationSystem == 'BERSe') {
+
+		newRow.innerHTML = `
+			<div style="width: 100%; margin: 1em 0 1em 0;">
+				<div style="width: 35%; float: left;">
+					<label class="form-label-2">耗能分區</label>
+					<select class="form-input-2" name="es-id-${energySectionCount}" onchange="esIdChange('${estimationSystem}', ${energySectionCount})" aria-label="es-id-${energySectionCount}">
+			` + es_option + `
+					</select>
+				</div>
+				<div style="width: 40%; float: left;">
+					<div name="form-es-attr-${energySectionCount}" style="flex-direction: column; display: flex;"></div>
+				</div>
+				<div style="width: 20%; float: right;">
+					<button class="form-button-dynamic-delete" type="button" onclick="removeEnergySection(${energySectionCount})">刪除</button>
+				</div>
 			</div>
-			<div style="width: 40%; float: left;">
-				<div name="form-es-attr-${energySectionCount}" style="flex-direction: column; display: flex;"></div>
+			<hr style="clear: both;">
+		`;
+	
+	} else if (estimationSystem == 'R-BERS') {
+
+		newRow.innerHTML = `
+			<div style="width: 100%; margin: 1em 0 1em 0;">
+				<div style="width: 35%; float: left;">
+					<label class="form-label-2">耗能分區</label>
+					<select class="form-input-2" name="es-id-${energySectionCount}" onchange="esIdChange('${estimationSystem}', ${energySectionCount})" aria-label="es-id-${energySectionCount}">
+			` + es_residential_option + `
+					</select>
+				</div>
+				<div style="width: 40%; float: left;">
+					<div name="form-es-attr-${energySectionCount}" style="flex-direction: column; display: flex;"></div>
+				</div>
+				<div style="width: 20%; float: right;">
+					<button class="form-button-dynamic-delete" type="button" onclick="removeEnergySection(${energySectionCount}); esAreaChange();">刪除</button>
+				</div>
 			</div>
-			<div style="width: 20%; float: right;">
-				<button class="form-button-dynamic-delete" type="button" onclick="removeEnergySection(${energySectionCount})">刪除</button>
-			</div>
-		</div>
-		<hr style="clear: both;">
-	`;
+			<hr style="clear: both;">
+		`;
+	
+	}
 	Div.appendChild(newRow);
 	energySectionCount++;
 }
@@ -68,35 +99,49 @@ function clearEnergySections() {
 //
 // ====================================================================================================
 
-function esIdChange(sectionIndex) {
+function esIdChange(estimationSystem, sectionIndex) {
+
 	// Select the div
 	const form = document.querySelector(`div[name="form-es-attr-${sectionIndex}"]`);
 	// Get the selected value
 	const esId = document.querySelector(`select[name="es-id-${sectionIndex}"]`).value;
 	
-	// Clear the form
-	form.innerHTML = `
-		<div>
-			<label class="form-label-2">分區面積</label>
-			<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-a" placeholder="分區面積 [m2]" onchange="esAreaChange()" required>
-		</div>
-		<div>
-			<label class="form-label-2">空調營運類型</label>
-			<select class="form-input-3" name="es-attr-${sectionIndex}-ac_operation" aria-label="es-attr-${sectionIndex}-ac_operation">
-				<option disabled selected>選擇空調營運類型</option>
-				<option value="interval">間歇式</option>
-				<option value="continue">全年式</option>
-			</select>
-		</div>
-		<div>
-			<label class="form-label-2">是否為水冷式空調系統</label>
-			<select class="form-input-3" name="es-attr-${sectionIndex}-ac_type" aria-label="es-attr-${sectionIndex}-ac_type">
-				<option disabled selected>選擇是否為水冷式空調系統</option>
-				<option value="watercooled">水冷式</option>
-				<option value="normal">一般</option>
-			</select>
-		</div>
-	`;
+	// Set the form based on estimation system
+	if (estimationSystem == 'BERSe') {
+
+		form.innerHTML = `
+			<div>
+				<label class="form-label-2">分區面積</label>
+				<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-a" placeholder="分區面積 [m2]" min="0" step="0.01" onchange="esAreaChange()" required>
+			</div>
+			<div>
+				<label class="form-label-2">空調營運類型</label>
+				<select class="form-input-3" name="es-attr-${sectionIndex}-ac_operation" aria-label="es-attr-${sectionIndex}-ac_operation">
+					<option disabled selected>選擇空調營運類型</option>
+					<option value="interval">間歇式</option>
+					<option value="continue">全年式</option>
+				</select>
+			</div>
+			<div>
+				<label class="form-label-2">是否為水冷式空調系統</label>
+				<select class="form-input-3" name="es-attr-${sectionIndex}-ac_type" aria-label="es-attr-${sectionIndex}-ac_type">
+					<option disabled selected>選擇是否為水冷式空調系統</option>
+					<option value="watercooled">水冷式</option>
+					<option value="normal">一般</option>
+				</select>
+			</div>
+		`;
+
+	} else if (estimationSystem == 'R-BERS') {
+
+		form.innerHTML = `
+			<div>
+				<label class="form-label-2">分區面積</label>
+				<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-a" placeholder="分區面積 [m2]" min="0" step="0.01" onchange="esAreaChange()" required>
+			</div>
+		`;
+
+	}
 
 	// Create the new form
 	switch (esId) {
@@ -131,7 +176,7 @@ function esIdChange(sectionIndex) {
 			form.innerHTML = form.innerHTML + `
 				<div>
 					<label class="form-label-2">盥洗區面積</label>
-					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-sportbathroom-a" placeholder="m2（無盥洗區則免填）" required>
+					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-sportbathroom-a" placeholder="m2（無盥洗區則免填）" min="0" step="0.01" required>
 				</div>
 				<div>
 					<label class="form-label-2">全年營運時數</label>
@@ -200,7 +245,7 @@ function esIdChange(sectionIndex) {
 				</div>
 				<div>
 					<label class="form-label-2">盥洗區面積</label>
-					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-sportbathroom-a" placeholder="m2（無盥洗區則免填）">
+					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-sportbathroom-a" min="0" step="0.01" placeholder="m2（無盥洗區則免填）">
 				</div>
 				<div>
 					<label class="form-label-2">盥洗區全年營運時數</label>
@@ -213,7 +258,7 @@ function esIdChange(sectionIndex) {
 			form.innerHTML = form.innerHTML + `
 				<div>
 					<label class="form-label-2">用餐區面積</label>
-					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-diningarea-a" placeholder="m2">
+					<input class="form-input-3" type="number" name="es-attr-${sectionIndex}-diningarea-a" placeholder="m2" min="0" step="0.01">
 				</div>
 				<div>
 					<label class="form-label-2">每天提供餐數</label>
@@ -282,6 +327,10 @@ function esAreaChange() {
 	}	
 	document.getElementById('form-total-area').innerHTML = `分區總面積：${totalArea} [m2]`;
 }
+
+
+// ====================================================================================================
+// EXCLUSIVE ENERGY SECTION
 
 // ====================================================================================================
 //
@@ -365,7 +414,7 @@ function esExclusiveIdChange(sectionIndex) {
 			form.innerHTML = `
 				<div>
 					<label class="form-label-2">專用廚房面積</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
+					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" min="0" step="0.01" required>
 				</div>
 			`
 			break;
@@ -374,7 +423,7 @@ function esExclusiveIdChange(sectionIndex) {
 			form.innerHTML = `
 				<div>
 					<label class="form-label-2">分區面積</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
+					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" min="0" step="0.01" required>
 				</div>
 			`
 			break;
@@ -383,7 +432,7 @@ function esExclusiveIdChange(sectionIndex) {
 			form.innerHTML = `
 				<div>
 					<label class="form-label-2">冷藏室面積</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
+					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" min="0" step="0.01" required>
 				</div>
 			`
 			break;
@@ -392,7 +441,7 @@ function esExclusiveIdChange(sectionIndex) {
 			form.innerHTML = `
 				<div>
 					<label class="form-label-2">冷凍室面積</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
+					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" min="0" step="0.01" required>
 				</div>
 			`
 			break;
@@ -419,7 +468,7 @@ function esExclusiveIdChange(sectionIndex) {
 			form.innerHTML = `
 				<div>
 					<label class="form-label-2">休閒設施面積</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
+					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" min="0" step="0.01" required>
 				</div>
 				<div>
 					<label class="form-label-2">全年營運時數</label>
@@ -432,7 +481,7 @@ function esExclusiveIdChange(sectionIndex) {
 			form.innerHTML = `
 				<div>
 					<label class="form-label-2">機房面積</label>
-					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" required>
+					<input class="form-input-3" type="number" name="es-exclusive-attr-${sectionIndex}-a" placeholder="m2" min="0" step="0.01" required>
 				</div>
 				<div>
 					<label class="form-label-2">機房機櫃功率</label>
@@ -441,4 +490,69 @@ function esExclusiveIdChange(sectionIndex) {
 			`
 			break;
 	}
+}
+
+
+// ====================================================================================================
+// NON-RESIDENTIAL ENERGY SECTION
+
+
+// ====================================================================================================
+//
+// Add a new row to the ES non-residential table
+//
+// ====================================================================================================
+
+function addEnergySectionNonResidential() {
+	
+	// Select the div
+	const Div = document.getElementById('energy-sections-nonresidential');
+
+	// Create a new row
+	const newRow = document.createElement('div');
+	newRow.id = `energy-section-nonresidential-${energySectionNonResidentialCount}`;
+	newRow.innerHTML = `
+		<div style="width: 100%; margin: 1em 0 1em 0;">
+			<div style="width: 35%; float: left;">
+				<label class="form-label-2">非住宅分區</label>
+				<select class="form-input-2" name="es-nonresidential-id-${energySectionNonResidentialCount}" onchange="esNonResidentialIdChange(${energySectionNonResidentialCount})" aria-label="es-nonresidential-id-${energySectionNonResidentialCount}">
+		` + es_nonresidential_option + `
+				</select>
+			</div>
+			<div style="width: 40%; float: left;">
+				<label class="form-label-2">非住宅分區面積</label>
+				<input class="form-input-3" type="number" name="es-nonresidential-attr-${energySectionNonResidentialCount}-a" placeholder="m2" min="0" step="0.01" required>
+			</div>
+			<div style="width: 20%; float: right;">
+				<button class="form-button-dynamic-delete" type="button" onclick="removeEnergySectionNonResidential(${energySectionNonResidentialCount})">刪除</button>
+			</div>
+		</div>
+		<hr style="clear: both;">
+	`;
+	Div.appendChild(newRow);
+	energySectionNonResidentialCount++;
+}
+
+// ====================================================================================================
+//
+// Remove a row from the ES non-residential table
+//
+// ====================================================================================================
+
+function removeEnergySectionNonResidential(sectionIndex) {
+	const Div = document.getElementById('energy-sections-nonresidential');
+	const removedRow = document.querySelector(`#energy-section-nonresidential-${sectionIndex}`);
+	Div.removeChild(removedRow);
+}
+
+// ====================================================================================================
+//
+// Clear all rows from the ES non-residential table
+//
+// ====================================================================================================
+
+function clearEnergySectionsNonResidential() {
+	const Div = document.getElementById('energy-sections-nonresidential');
+	Div.innerHTML = '';
+	energySectionNonResidentialCount = 0;
 }
