@@ -189,7 +189,7 @@ def get_estimation_config(file_name: str) -> tuple:
 
 	return dict_config
 
-def output_estimation_result(file_name, **kwargs):
+def output_estimation_result(building, file: str):
 
 	"""
 	Ouptut the estimation result to a JSON file and diagram.
@@ -197,36 +197,62 @@ def output_estimation_result(file_name, **kwargs):
 
 	Arguments:
 
-		file_name (str): The name of the building configuration file.
+		building (algorithm_bers.building_basic.Building): The building object.
 
-		kwarg (dict): The dictionary containing the estimation result.
+		file (str): The name of the building configuration file.
+
+	Output:
+
+		None
 	"""
 
 	# Set output directory
-	output_path = './output/{file}/'.format(file='.'.join(file_name.split('.')[1:-1]))
+	output_path = './output/{file}/'.format(file='.'.join(file.split('.')[1:-1]))
 	if (not os.path.exists(output_path)): os.makedirs(output_path)
 
+	# =========================================================================================
+	#
 	# Output to JSON file
+	#
+	# =========================================================================================
+
 	with open(output_path + 'estimation_result.json', 'w') as outfile:
 
 		json.dump({
-			'est_eui': kwargs.get('est_eui', None),
-			'est_eui_min': kwargs.get('est_eui_min', None),
-			'est_eui_g': kwargs.get('est_eui_g', None),
-			'est_eui_m': kwargs.get('est_eui_m', None),
-			'est_eui_max': kwargs.get('est_eui_max', None),
-			'est_cei': kwargs.get('est_cei', None),
-			'est_score': kwargs.get('est_score', None),
-			'est_score_level': kwargs.get('est_score_level', None),
+			'est_eui'        : getattr(building, 'est_eui', None),
+			'est_eui_n'      : getattr(building, 'est_eui_n', None),
+			'est_eui_min'    : getattr(building, 'est_eui_min', None),
+			'est_eui_g'      : getattr(building, 'est_eui_g', None),
+			'est_eui_m'      : getattr(building, 'est_eui_m', None),
+			'est_eui_max'    : getattr(building, 'est_eui_max', None),
+			'est_cei'        : getattr(building, 'est_cei', None),
+			'est_score'      : getattr(building, 'est_score', None),
+			'est_score_level': getattr(building, 'est_score_level', None),
 		}, outfile, indent=4)
 
+	# =========================================================================================
+	#
 	# Output diagram
-	algorithm_bers.plot.plot_eui_diagram(
+	#
+	# =========================================================================================
+
+	algorithm_bers.output.EuiDiagram().plot(
+		building,
 		output_path,
-		**kwargs,
 	)
 
-	return True
+	# =========================================================================================
+	#
+	# Output energy rating dashboard
+	#
+	# =========================================================================================
+
+	algorithm_bers.output.EnergyRatingDashboard().output_file(
+		building,
+		output_path,
+	)
+
+	return
 
 def run_estimate_berse(file: str, **kwargs):
 
@@ -393,13 +419,7 @@ def run_estimate_berse(file: str, **kwargs):
 	#
 	# =========================================================================================
 
-	est_result = building_1.estimate()
-	
-	est_eui, \
-	est_eui_min, est_eui_g, est_eui_m, est_eui_max, \
-	est_cei, \
-	est_score, est_score_level \
-	= est_result
+	building_1.estimate()
 	
 	# =========================================================================================
 	#
@@ -408,15 +428,8 @@ def run_estimate_berse(file: str, **kwargs):
 	# =========================================================================================
 
 	output_estimation_result(
+		building_1,
 		file,
-		est_eui=est_eui,
-		est_eui_min=est_eui_min,
-		est_eui_g=est_eui_g,
-		est_eui_m=est_eui_m,
-		est_eui_max=est_eui_max,
-		est_cei=est_cei,
-		est_score=est_score,
-		est_score_level=est_score_level,
 	)
 
 	return
@@ -510,15 +523,8 @@ def run_estimate_rbers(file: str, **kwargs):
 	#
 	# =========================================================================================
 
-	est_result = building_1.estimate()
+	building_1.estimate()
 
-	est_eui_simulated, \
-	est_eui_n, est_eui_g, est_eui_m, est_eui_max, \
-	est_cei_simulated, \
-	est_cei_n, est_cei_g, est_cei_m, est_cei_max, \
-	est_score, est_score_level \
-	= est_result
-	
 	# =========================================================================================
 	#
 	# Output the estimation result to ./output/ directory
@@ -526,17 +532,6 @@ def run_estimate_rbers(file: str, **kwargs):
 	# =========================================================================================
 
 	output_estimation_result(
+		building_1,
 		file,
-		est_eui=est_eui_simulated,
-		est_eui_min=est_eui_n,
-		est_eui_g=est_eui_g,
-		est_eui_m=est_eui_m,
-		est_eui_max=est_eui_max,
-		est_cei=est_cei_simulated,
-		est_cei_min=est_cei_n,
-		est_cei_g=est_cei_g,
-		est_cei_m=est_cei_m,
-		est_cei_max=est_cei_max,
-		est_score=est_score,
-		est_score_level=est_score_level,
 	)

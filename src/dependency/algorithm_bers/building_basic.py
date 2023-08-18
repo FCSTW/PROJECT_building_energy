@@ -779,6 +779,7 @@ class ExistingBuilding(Building):
 
 		# 1. Building information
 		# 1-a. Estimation information
+		self.building_name                   = kwargs.get('building_name', None)
 		self.estimation_system               = estimation_system
 		self.building_class                  = 'general'
 		self.building_type                   = building_type
@@ -850,21 +851,7 @@ class ExistingBuilding(Building):
 
 		Output:
 
-			est_eui (float): The estimated EUI of a building.
-
-			est_eui_min (float): The minimum estimated EUI of a building.
-
-			est_eui_g (float): The green building criteria estimated EUI of a building.
-
-			est_eui_m (float): The median estimated EUI of a building.
-
-			est_eui_max (float): The maximum estimated EUI of a building.
-
-			est_cei (float): The estimated CEI of a building.
-
-			est_score (float): The estimated score of a building.
-
-			est_score_level (str): The estimated score level of a building.
+			None
 		"""
 
 		# =========================================================================================
@@ -934,7 +921,7 @@ class ExistingBuilding(Building):
 		self.est_eui_m       = self.building_ur * (self.est_aeui_m + self.est_leui_m + self.est_eeui_m)
 		self.est_eui_max     = self.building_ur * (self.est_aeui_max + self.est_leui_max + self.est_eeui_m)
 
-		# Calculate EUI for exclusive energy sections
+		# Calculate the properties for exclusive energy sections
 		if (self.n_exclusive_energy_section > 0):
 			
 			for i_es in self.exclusive_energy_section: i_es.e_n = self._calc_e_n(i_es)
@@ -944,6 +931,9 @@ class ExistingBuilding(Building):
 		else:
 
 			self.est_e_n = 0.0
+		
+		self.est_a_es_exclusive = np.nansum([i.a for i in self.exclusive_energy_section])
+		
 
 		# =========================================================================================
 		# 
@@ -995,12 +985,6 @@ class ExistingBuilding(Building):
 		
 		# Calculate main eui
 		self.est_eui_main    = (self.ec - self.building_ur * (self.est_e_n + self.est_e_t + self.est_e_p + self.est_e_h) - self.ec_other) / self.est_a_es_comm
-		
-		print('ec: ' + str(self.ec))
-		print('est_e_n: ' + str(self.est_e_n))
-		print('est_e_t: ' + str(self.est_e_t))
-		print('est_e_p: ' + str(self.est_e_p))
-		print('est_e_h: ' + str(self.est_e_h))
 
 		# =========================================================================================
 		# 
@@ -1009,19 +993,18 @@ class ExistingBuilding(Building):
 		# =========================================================================================
 
 		# Calculate adjusted eui_m
-		self.est_aeui_m_adj = np.nansum([i.a * i.aeui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
-		self.est_leui_m_adj = np.nansum([i.a * i.leui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
-		self.est_eeui_m_adj = np.nansum([i.a * i.eeui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
+		self.est_aeui_m_adj  = np.nansum([i.a * i.aeui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
+		self.est_leui_m_adj  = np.nansum([i.a * i.leui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
+		self.est_eeui_m_adj  = np.nansum([i.a * i.eeui_m * i.SO_r for i in self.energy_section]) / self.est_a_es_comm
 		
 		self.est_eui_m_adj   = self.building_ur * (self.est_aeui_m_adj + self.est_leui_m_adj + self.est_eeui_m_adj)
 
 		# Calculate unbiased eui
 		self.est_eui         = self.est_eui_m + self.est_eui_main - self.est_eui_m_adj
-
-		print('est_eui_m: ' + str(self.est_eui_m))
-		print('est_eui_main: ' + str(self.est_eui_main))
-		print('est_eui_m_adj: ' + str(self.est_eui_m_adj))
-
+		
+		# Calculate total eui
+		self.est_eui_total   = self.ec / (self.est_a_es_comm + self.est_a_es_exclusive)
+		
 		# =========================================================================================
 		# 
 		# Calculate cei
@@ -1062,11 +1045,7 @@ class ExistingBuilding(Building):
 		# 
 		# =========================================================================================
 
-		return \
-			self.est_eui, \
-			self.est_eui_min, self.est_eui_g, self.est_eui_m, self.est_eui_max, \
-			self.est_cei, \
-			self.est_score, self.est_score_level
+		return
 
 	def _calc_ec_total_elevator(self):
 
@@ -1756,7 +1735,7 @@ class ExistingBuilding(Building):
 
 		Arguments:
 
-			es (algorithm_bers.building_basic.ExclusiveEnergySection): Exclusive energy section
+			es (ExclusiveEnergySection): Exclusive energy section
 		
 		Output:
 
@@ -1934,7 +1913,7 @@ class ExistingBuilding(Building):
 
 		Arguments:
 
-			es (algorithm_bers.building_basic.EnergySection): Energy section object
+			es (EnergySection): Energy section object
 
 		Output:
 
@@ -2108,29 +2087,7 @@ class NewBuilding(Building):
 
 		Output:
 
-			est_eui_simulated (float): The estimated simulated EUI of a building (for reference).
-
-			est_eui_n (float): The net-zero criteria estimated simulated EUI of a building (for reference).
-
-			est_eui_g (float): The green building criteria estimated simulated EUI of a building (for reference).
-
-			est_eui_m (float): The median estimated simulated EUI of a building (for reference).
-
-			est_eui_max (float): The maximum estimated simulated EUI of a building (for reference).
-
-			est_cei_simulated (float): The estimated simulated CEI of a building (for reference).
-
-			est_cei_n (float): The net-zero criteria estimated simulated CEI of a building (for reference).
-
-			est_cei_g (float): The green building criteria estimated simulated CEI of a building (for reference).
-
-			est_cei_m (float): The median estimated simulated CEI of a building (for reference).
-
-			est_cei_max (float): The maximum estimated simulated CEI of a building (for reference).
-
-			est_score (float): The estimated score of a building.
-
-			est_score_level (str): The estimated score level of a building.
+			None
 		"""
 
 		# Calculate average hydraulic head of water tower
@@ -2244,7 +2201,7 @@ class NewBuilding(Building):
 				self._calc_mce_total_simulated()
 		
 		# Calculate simulated CEI
-		self.est_cei_simulated = self.est_total_simulated_carbon_emission / self.est_a_es_comm
+		self.est_cei = self.est_total_simulated_carbon_emission / self.est_a_es_comm
 
 		# =========================================================================================
 		# 
@@ -2253,13 +2210,13 @@ class NewBuilding(Building):
 		# =========================================================================================
 
 		# Calculate score
-		if (self.est_cei_simulated <= self.est_cei_g):
+		if (self.est_cei <= self.est_cei_g):
 
-			self.est_score = min(50 + 40 * (self.est_cei_g - self.est_cei_simulated) / (self.est_cei_g - self.est_cei_n), 100)
+			self.est_score = min(50 + 40 * (self.est_cei_g - self.est_cei) / (self.est_cei_g - self.est_cei_n), 100)
 		
-		elif (self.est_cei_simulated > self.est_cei_g):
+		elif (self.est_cei > self.est_cei_g):
 
-			self.est_score = max(50 * (self.est_cei_max - self.est_cei_simulated) / (self.est_cei_max - self.est_cei_g), 0)
+			self.est_score = max(50 * (self.est_cei_max - self.est_cei) / (self.est_cei_max - self.est_cei_g), 0)
 
 		# Caclulate score level
 		if (self.est_score >= 90): self.est_score_level = '1+'
@@ -2278,18 +2235,13 @@ class NewBuilding(Building):
 		# =========================================================================================
 
 		# Calculate EUI for reference
-		self.est_eui_simulated = self.est_cei_simulated / constant.coef_ece
+		self.est_eui     = self.est_cei / constant.coef_ece
 		self.est_eui_max = self.est_cei_max / constant.coef_ece
 		self.est_eui_m   = self.est_cei_m   / constant.coef_ece
 		self.est_eui_n   = self.est_cei_n   / constant.coef_ece
 		self.est_eui_g   = self.est_cei_g   / constant.coef_ece
 
-		return \
-			self.est_eui_simulated, \
-			self.est_eui_n, self.est_eui_g, self.est_eui_m, self.est_eui_max, \
-			self.est_cei_simulated, \
-			self.est_cei_n, self.est_cei_g, self.est_cei_m, self.est_cei_max, \
-			self.est_score, self.est_score_level
+		return
 		
 	def _calc_average_hydraulic_head_watertower(self):
 
