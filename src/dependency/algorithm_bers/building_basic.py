@@ -10,6 +10,7 @@ Abbreviation:
 """
 
 from . import building_facility
+from . import read_eui_criteria
 from . import constant
 from . import tool
 
@@ -880,27 +881,23 @@ class ExistingBuilding(Building):
 		# 
 		# =========================================================================================
 
-		# Read the files for EUI score: EUI median, maximum, and minimum
-		df_eui_m                        = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.m.csv')
-		df_eui_max                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.max.csv')
-		df_eui_min                      = pd.read_csv(__path__ + '../data/eui_criteria/eui_criteria.min.csv')
-
-		df_eui_m['Energy_Section_ID']   = df_eui_m['Energy_Section'].str.split('. ').str[0]
-		df_eui_max['Energy_Section_ID'] = df_eui_max['Energy_Section'].str.split('. ').str[0]
-		df_eui_min['Energy_Section_ID'] = df_eui_min['Energy_Section'].str.split('. ').str[0]
+		# Read the files for EUI score
+		eui_criteria = read_eui_criteria.EuiCriteria(
+			building_climate_zone=self.building_cz,
+			building_address_county=self.building_address_county,
+			building_address_town=self.building_address_town,
+		)
 
 		# Extract EUI values from EUI score tables
 		for i_es in self.energy_section:
 
-			i_es.eeui_m     = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'EEUI'].values[0]
-			i_es.leui_min   = df_eui_min.loc[df_eui_min['Energy_Section_ID']==i_es.id, 'LEUI'].values[0]
-			i_es.leui_m     = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'LEUI'].values[0]
-			i_es.leui_max   = df_eui_max.loc[df_eui_max['Energy_Section_ID']==i_es.id, 'LEUI'].values[0]
-			i_es.aeui_min   = df_eui_min.loc[df_eui_min['Energy_Section_ID']==i_es.id, 'AEUI_{}_{}'.format(self.building_cz, i_es.ac_operation.upper())].values[0]
-			i_es.aeui_m     = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'AEUI_{}_{}'.format(self.building_cz, i_es.ac_operation.upper())].values[0]
-			i_es.aeui_max   = df_eui_max.loc[df_eui_max['Energy_Section_ID']==i_es.id, 'AEUI_{}_{}'.format(self.building_cz, i_es.ac_operation.upper())].values[0]
-			i_es.meaneui_m  = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'EUI_Mean'].values[0]
-			i_es.totaleui_m = df_eui_m.loc[df_eui_m['Energy_Section_ID']==i_es.id, 'TotalEUI'].values[0]
+			i_es.eeui_m     = eui_criteria.get_eui_criteria(i_es, 'm', 'eeui')
+			i_es.leui_min   = eui_criteria.get_eui_criteria(i_es, 'min', 'leui')
+			i_es.leui_m     = eui_criteria.get_eui_criteria(i_es, 'm', 'leui')
+			i_es.leui_max   = eui_criteria.get_eui_criteria(i_es, 'max', 'leui')
+			i_es.aeui_min   = eui_criteria.get_eui_criteria(i_es, 'min', 'aeui')
+			i_es.aeui_m     = eui_criteria.get_eui_criteria(i_es, 'm', 'aeui')
+			i_es.aeui_max   = eui_criteria.get_eui_criteria(i_es, 'max', 'aeui')
 
 		# Error handling
 		# aeui_min, aeui_m, or aeui_max include NaN
@@ -1020,14 +1017,18 @@ class ExistingBuilding(Building):
 		# 
 		# =========================================================================================
 
+		print()
+
 		# Calculate score
 		if (self.est_eui <= self.est_eui_g):
 
-			self.est_score = min(50 + 50 * (self.est_eui_g - self.est_eui) / (self.est_eui_g - self.est_eui_min), 100)
+			self.est_score = 50 + 50 * (self.est_eui_g - self.est_eui) / (self.est_eui_g - self.est_eui_min)
 		
 		elif (self.est_eui > self.est_eui_g):
+			self.est_score = 50 * (self.est_eui_max - self.est_eui) / (self.est_eui_max - self.est_eui_g)
 
-			self.est_score = max(50 * (self.est_eui_max - self.est_eui) / (self.est_eui_max - self.est_eui_g), 0)
+		# Compress the score to 0-100
+		self.est_score = min(max(self.est_score, 0), 100)
 
 		# Caclulate score level
 		if (self.est_score >= 90): self.est_score_level = '1+'
@@ -2212,11 +2213,14 @@ class NewBuilding(Building):
 		# Calculate score
 		if (self.est_cei <= self.est_cei_g):
 
-			self.est_score = min(50 + 40 * (self.est_cei_g - self.est_cei) / (self.est_cei_g - self.est_cei_n), 100)
+			self.est_score = 50 + 40 * (self.est_cei_g - self.est_cei) / (self.est_cei_g - self.est_cei_n)
 		
 		elif (self.est_cei > self.est_cei_g):
 
-			self.est_score = max(50 * (self.est_cei_max - self.est_cei) / (self.est_cei_max - self.est_cei_g), 0)
+			self.est_score = 50 * (self.est_cei_max - self.est_cei) / (self.est_cei_max - self.est_cei_g)
+
+		# Compress the score to 0-100
+		self.est_score = min(max(self.est_score, 0), 100)
 
 		# Caclulate score level
 		if (self.est_score >= 90): self.est_score_level = '1+'
