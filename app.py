@@ -110,10 +110,19 @@ def page_result(file=None):
 		# If the file name is specified, render the result page
 
 		# Read the output JSON file
-		with open('output/{file}/estimation_result.json'.format(file=file), 'rb') as infile:  data = json.load(infile)
+		with open('output/{file}/estimation_result.json'.format(file=file), 'rb') as infile: data = json.load(infile)
 
+		# Convert all the numbers in the data to float
+		for key in data.keys():
+
+			if isinstance(data[key], float):
+
+				data[key] = round(float(data[key]))
+		
+		# Create string for output
 		data_string = \
 			'估計 EUI: {est_eui} kWh/(m<sup>2</sup>year) <br>' \
+			'估計尺度淨零基準 EUI: {est_eui_n} kWh/(m<sup>2</sup>year) <br>' \
 			'估計尺度最低 EUI: {est_eui_min} kWh/(m<sup>2</sup>year) <br>' \
 			'估計尺度綠建築 EUI: {est_eui_g} kWh/(m<sup>2</sup>year) <br>' \
 			'估計尺度中位數 EUI: {est_eui_m} kWh/(m<sup>2</sup>year) <br>' \
@@ -121,12 +130,13 @@ def page_result(file=None):
 			'能耗得分: {est_score} 分（{est_score_level} 級）'
 		
 		data_string = data_string.format(
-			est_eui=round(float(data['est_eui']), 2),
-			est_eui_min=round(float(data['est_eui_min']), 2),
-			est_eui_g=round(float(data['est_eui_g']), 2),
-			est_eui_m=round(float(data['est_eui_m']), 2),
-			est_eui_max=round(float(data['est_eui_max']), 2),
-			est_score=round(float(data['est_score']), 2),
+			est_eui=data['est_eui'],
+			est_eui_n=data['est_eui_n'],
+			est_eui_min=data['est_eui_min'],
+			est_eui_g=data['est_eui_g'],
+			est_eui_m=data['est_eui_m'],
+			est_eui_max=data['est_eui_max'],
+			est_score=data['est_score'],
 			est_score_level=data['est_score_level']
 		)
 
